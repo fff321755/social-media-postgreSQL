@@ -14,7 +14,7 @@ CREATE TABLE Group(
  PRIMARY KEY(group_id),
  UNIQUE(group_name))
 
-CREATE TABLE Dep_post               **weak entity relationship
+CREATE TABLE Dep_post               --weak entity relationship
 (post_no : INTEGER,
  time : DATETIME,
  uid : CHAR(10),
@@ -44,7 +44,7 @@ CREATE TABLE Personal_mood
 -- total participation to the Dep_post
 -- non-overlapping condition between Personal_mood and Group_post
 
-CREATE TABLE Dep_comments         **weak entity relationship
+CREATE TABLE Dep_comments         --weak entity relationship
 (comment_no : INTEGER,
  uid_comment : CHAR(10),
  uid_post : CHAR(10),
