@@ -7,38 +7,42 @@ is_active : BOOL,
 PRIMARY KEY(uid),
 UNIQUE(email))
 
-CREATE TABLE Group(
+CREATE TABLE Groups(
 (group_id : CHAR(10),
  type : INTEGER,
  group_name : VARCHAR(50)
  PRIMARY KEY(group_id),
  UNIQUE(group_name))
 
-CREATE TABLE Dep_post               --weak entity relationship
+CREATE TABLE Dep_posts              --weak entity relationship
 (post_no : INTEGER,
  time : DATETIME,
  uid : CHAR(10),
  PRIMARY KEY(post_num, uid),
  FOREIGN KEY (uid) REFERENCES Users)
 
-CREATE TABLE Group_post
+CREATE TABLE Group_posts
 (uid : CHAR(10),
  group_id : CHAR(10),
  post_no : INTEGER,
  text : VARCHAR(200),
  image_URL : VARCHAR(100),
  PRIMARY KEY(uid, post_no),
- FOREIGN KEY(uid, post_no) REFERENCES Dep_post
+ FOREIGN KEY(uid, post_no) REFERENCES Dep_posts
  	ON DELETE CASCADE,
- FOREIGN KEY(group_id) REFERENCES Group,
+ FOREIGN KEY(group_id) REFERENCES Groups,
     ON DELETE CASCADE)
 
+--longitude and latitude represents location of the user when posting 
+
 CREATE TABLE Personal_mood
-(location : CHAR(30), 
+(longitude : DECIMAL,
+ latitude : DECIMAL, 
  uid : CHAR(10),
  post_no : INTEGER,
+ image_URL : VARCHAR(100)
  PRIMARY KEY(uid, post_no),
- FOREIGN KEY(uid, post_no) REFERENCES Dep_post
+ FOREIGN KEY(uid, post_no) REFERENCES Dep_posts
 	ON DELETE CASCADE)
 
 -- total participation to the Dep_post
@@ -53,8 +57,11 @@ CREATE TABLE Dep_comments         --weak entity relationship
  PRIMARY KEY(uid_comment, comment_no),
  FOREIGN KEY(uid_comment) REFERENCES Users
  	ON DELETE CASCADE
- FOREIGN KEY(uid_post, post_no) REFERENCES Dep_post
+ FOREIGN KEY(uid_post, post_no) REFERENCES Dep_posts
     ON DELETE CASCADE)
+
+
+--  participation of Group to the User (If no users stays in a group, that group will be deleted automatically)
 
 CREATE TABLE User_in_group
 (uid : INTEGER
@@ -63,10 +70,8 @@ CREATE TABLE User_in_group
  PRIMARY KEY(uid, group_id),
  FOREIGN KEY(uid) REFERENCES Users
  	ON DELETE CASCADE
- FOREIGN KEY(group_id) REFERENCES Group
+ FOREIGN KEY(group_id) REFERENCES Groups
 	ON DELETE CASCADE)
-
---  participation of Group to the User (If no users stays in a group, that group will be deleted automatically)
 
 
 CREATE TABLE Follow
@@ -76,17 +81,27 @@ CREATE TABLE Follow
  FOREIGN KEY(uid_following) REFERENCES Users
 	ON DELETE CASCADE
  FOREIGN KEY(uid_followed) REFERENCES Users
-	ON DELETE CASACDE)
+	ON DELETE CASCADE)
 
+CREATE TABLE comments_to_comments
+(uid1 = CHAR(10),
+ uid2 = CHAR(10),
+ comments_no1 = INTEGER,
+ comments_no2 = INTEGER,
+ PRIMARY KEY(uid1, comments_no1, uid2, comments_no2),
+ FOREIGN KEY(uid1, comments_no1) REFERENCES Dep_comments
+ FOREIGN KEY(uid2, comments_no2) REFERENCES Dep_comments
+	ON DELETE CASCADE
+)
 
 CREATE TABLE Responses_to_post
 (uid_post : CHAR(10),
  post_no : INTEGER,
  uid_like : CHAR(10),
  mood : INTEGER,
- time : DATE
+ time : DATETIME
  PRIMARY KEY(uid_post, post_no, uid_like),
- FOREIGN KEY(uid_post, post_no) REFERENCES Dep_post
+ FOREIGN KEY(uid_post, post_no) REFERENCES Dep_posts
 	ON DELETE CASCADE
  FOREIGN KEY(uid_like) REFERENCES Users
 	ON DELETE CASCADE)
@@ -97,7 +112,7 @@ CREATE TABLE Responses_to_comment
  comment_no : INTEGER,
  uid_like : CHAR(10),
  mood : INTEGER,
- time : DATE
+ time : DATETIME
  PRIMARY KEY(uid_comment, comment_no, uid_like),
  FOREIGN KEY(uid_comment, comment_no) REFERENCES Dep_comments
 	ON DELETE CASCADE
