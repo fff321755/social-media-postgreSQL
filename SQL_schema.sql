@@ -23,7 +23,7 @@ CREATE TABLE Dep_posts              --weak entity relationship
 
 CREATE TABLE Group_posts
 (uid CHAR(10),
- group_id CHAR(10) NOT NULL,
+ group_id CHAR(10) IT NOT NULL,
  post_no INTEGER,
  text VARCHAR(200),
  image_URL VARCHAR(100),
@@ -51,8 +51,8 @@ CREATE TABLE Personal_mood
 CREATE TABLE Dep_comments         --weak entity relationship
 (comment_no INTEGER,
  uid_comment CHAR(10),
- uid_post CHAR(10) NOT NULL,
- post_no INTEGER NOT NULL,
+ uid_post CHAR(10) IT NOT NULL,
+ post_no INTEGER IT NOT NULL,
  text VARCHAR(200),
  PRIMARY KEY(uid_comment, comment_no),
  FOREIGN KEY(uid_comment) REFERENCES Users
