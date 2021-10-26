@@ -1,0 +1,11 @@
+drop table responses_to_post ;
+drop table responses_to_comment ;
+drop table comments_to_comments ;
+drop table follow ;
+drop table group_posts ;
+drop table personal_mood;
+drop table dep_comments ;
+drop table dep_posts ;
+drop table user_in_group ;
+drop table groups ;
+drop table users ;
