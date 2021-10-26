@@ -38,7 +38,7 @@ CREATE TABLE Personal_mood
  latitude DECIMAL, 
  uid CHAR(10),
  post_no INTEGER,
- image_URL VARCHAR(100),
+ mood INTEGER,
  PRIMARY KEY(uid, post_no),
  FOREIGN KEY(uid, post_no) REFERENCES Dep_posts ON DELETE CASCADE);
 
@@ -48,9 +48,10 @@ CREATE TABLE Personal_mood
 CREATE TABLE Dep_comments         --weak entity relationship
 (comment_no INTEGER,
  uid_comment CHAR(10),
- uid_post CHAR(10) NOT NULL,
- post_no INTEGER NOT NULL,
+ uid_post CHAR(10),
+ post_no INTEGER,
  text VARCHAR(200),
+ time timestamp,
  PRIMARY KEY(uid_comment, comment_no),
  FOREIGN KEY(uid_comment) REFERENCES Users ON DELETE CASCADE,
  FOREIGN KEY(uid_post, post_no) REFERENCES Dep_posts ON DELETE CASCADE);
