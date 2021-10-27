@@ -75,7 +75,7 @@ def Dep_post(df_user):
     for i in range(7):
         for j in range(0, random.randint(3,7)):
 
-            df.loc[len(df.index)] = [j, str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')), uids[i]]
+            df.loc[len(df.index)] = [j+1, str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')), uids[i]]
 
     return df
 
@@ -109,7 +109,7 @@ def Group_posts_Personal_mood(df_dep_post, df_user_in_group):
         else:
             random.shuffle(user_group)
             group_id = user_group[0][1]
-            df_g.loc[len(df_g.index)] = [uid, group_id, post_no, "sample text", "www.sample.im/URL"]
+            df_g.loc[len(df_g.index)] = [uid, group_id, post_no, "sample text", "https://www.sample.im/URL"]
 
     return df_g, df_p
 
@@ -126,9 +126,9 @@ def Dep_comments(df_user, df_dep_post):
         # random.shuffle(posts)
         for j in range(random.randint(3,7)):
             if random.randint(1,100) > 40:
-                df.loc[len(df.index)] = [j, uid_comment,posts[j][2], posts[j][0], 'sample comment', str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'))]
+                df.loc[len(df.index)] = [j+1, uid_comment,posts[j][2], posts[j][0], 'sample comment', str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'))]
             else:
-                df.loc[len(df.index)] = [j, uid_comment, 'NULL', 'NULL', 'sample comment', str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'))]
+                df.loc[len(df.index)] = [j+1, uid_comment, 'NULL', 'NULL', 'sample comment', str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'))]
     
     return df
 
