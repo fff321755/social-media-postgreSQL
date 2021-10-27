@@ -35,7 +35,7 @@ CREATE TABLE Group_posts
 
 CREATE TABLE Personal_mood
 (longitude DECIMAL CHECK (longitude <= 180 AND longitude >= -180),
- latitude DECIMAL CHECK (latitude <= 90 AND latitude >= 90), 
+ latitude DECIMAL CHECK (latitude <= 90 AND latitude >= -90), 
  uid CHAR(10),
  post_no INTEGER CHECK (post_no > 0),
  mood INTEGER CHECK (mood > 0 AND mood < 7), -- we have 6 catagory of mood
