@@ -39,14 +39,14 @@ def Users():
     random.seed(0)
     df = pd.DataFrame(columns=['uid', 'name', 'present_mood', 'email', 'is_active'])
     
-    name = ["Kelly", "Alex", "Cody", "Kim", "Halsey", "James", "Steve", "Kevin"]
+    name = ["Kelly", "Alex", "Cody", "Kim", "Halsey", "James", "Steve", "Kevin", "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis"]
     name = [ n1+' '+n2 for n1 in name for n2 in name if n1!=n2]
     random.shuffle(name)
     tf = ['a', 'b', 'c', 'd', 'e']
     uni_number = list(range(1000,10000));
     random.shuffle(uni_number)
 
-    for i in range(0,50):
+    for i in range(0,25):
         uni = name[i].split()[0][0].lower() + name[i].split()[1][0].lower() + str(uni_number[i])
         df.loc[len(df.index)] = [str(i+1).zfill(10), name[i], random.randint(1, 5), uni+"@columbia.edu", random.choice(['true', 'false'])]
 
@@ -61,7 +61,7 @@ def Groups():
     name = [ n1+" "+n2 for n1 in name1 for n2 in name2]
     random.shuffle(name)
     
-    for i in range(0,10):
+    for i in range(0,15):
         df.loc[len(df.index)] = [str(i+1).zfill(10), random.randint(1, 5), name[i]]
 
     return df
@@ -72,10 +72,9 @@ def Dep_post(df_user):
     df = pd.DataFrame(columns=['post_no', 'time', 'uid'])
     uids = df_user['uid']
     random.shuffle(uids)
-    for i in range(7):
-        for j in range(0, random.randint(3,7)):
-
-            df.loc[len(df.index)] = [j+1, str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')), uids[i]]
+    for uid in uids:
+        for j in range(0, random.randint(25,100)):
+            df.loc[len(df.index)] = [j+1, str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')), uid]
 
     return df
 
@@ -87,10 +86,10 @@ def User_in_group(df_user, df_groups):
     groupids = df_groups['group_id']
     random.shuffle(uids)
     
-    for i in range(15):
-        for j in range(random.randint(1,3)):
-            random.shuffle(groupids)
-            df.loc[len(df.index)] = [uids[i], groupids[j], random.randint(1,3)]
+    for u in uids:
+        random.shuffle(groupids)
+        for j in range(random.randint(0,5)):
+            df.loc[len(df.index)] = [u, groupids[j], random.randint(1,3)]
 
     return df
 
@@ -121,12 +120,11 @@ def Dep_comments(df_user, df_dep_post):
     random.shuffle(uid_comments)
     posts = df_dep_post.values
 
-    for i in range(5):
-        uid_comment = uid_comments[i]
-        # random.shuffle(posts)
-        for j in range(random.randint(3,7)):
+    for uid_comment in uid_comments:
+        random.shuffle(posts)
+        for j in range(random.randint(0,25)):
             if random.randint(1,100) > 40:
-                df.loc[len(df.index)] = [j+1, uid_comment,posts[j][2], posts[j][0], 'sample comment', str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'))]
+                df.loc[len(df.index)] = [j+1, uid_comment, posts[j][2], posts[j][0], 'sample comment', str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'))]
             else:
                 df.loc[len(df.index)] = [j+1, uid_comment, 'NULL', 'NULL', 'sample comment', str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'))]
     
@@ -140,13 +138,13 @@ def Follow(df_user):
     random.shuffle(uid_followings)
     uid_followeds = df_user['uid'].values
     
-    for i in range(10):
+    for i in range(len(uid_followings)):
         random.shuffle(uid_followeds)
-        for j in range(random.randint(3,7)):
+        for j in range(random.randint(0,25)):
             if uid_followings[i] != uid_followeds[j]:
                 df.loc[len(df.index)] = [uid_followings[i], uid_followeds[j]]
 
-    return df
+    return df.drop_duplicates()
 
 
 def comments_to_comments(df_Dep_comments):
@@ -178,7 +176,7 @@ def Responses_to_post(df_user, df_dep_post):
     
     for p in posts:
         random.shuffle(uid_likes)
-        for i in range(random.randint(0,45)):
+        for i in range(random.randint(0,10)):
             df.loc[len(df.index)] = [p[2], p[0], uid_likes[i], random.randint(1,4), str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'))]
         
     return df
@@ -192,7 +190,7 @@ def Responses_to_comment(df_user, df_Dep_comments):
     
     for c in comments:
         random.shuffle(uid_likes)
-        for i in range(random.randint(0,8)):
+        for i in range(random.randint(0,10)):
             df.loc[len(df.index)] = [c[1], c[0], uid_likes[i], random.randint(1,4), str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'))]
         
     return df
