@@ -2,7 +2,7 @@ CREATE TABLE Users
 (uid CHAR(10),
 name VARCHAR(20) NOT NULL,
 present_mood INTEGER CHECK (present_mood > 0 AND present_mood < 7), -- we have 6 catagory of mood
-email VARCHAR(35) CHECK(email LIKE '%_@_%._%'),
+email VARCHAR(35) NOT NULL CHECK(email LIKE '%_@_%._%'),
 is_active BOOL,
 PRIMARY KEY(uid),
 UNIQUE(email));
