@@ -158,6 +158,22 @@ def index():
 # Notice that the function name is another() rather than index()
 # The functions for each app.route need to have different names
 #
+
+@app.route('/test/<myid>')
+def test(myid):
+  cursor = g.conn.execute("SELECT name FROM test where id={%s}", myid)
+  names = []
+  for result in cursor:
+    names.apppend(result['name'])
+  cursor.close()
+
+  if len(names) == 0:
+    pass
+  else :
+    pass
+
+  return redirect('/')
+  
 @app.route('/another')
 def another():
   return render_template("another.html")
