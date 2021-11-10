@@ -197,7 +197,7 @@ def post_page():
 
 @app.route('/follow_page')
 def follow_page():
-  return render_template('follow_pagehtml')
+  return render_template('follow_page.html')
 
 # Example of adding new data to the database
 @app.route('/add', methods=['POST'])
@@ -223,7 +223,7 @@ def login():
     return redirect('/')
 
 #see_post function
-@app.route('/see_post', methods=['POST'])
+@app.route('/see_posts', methods=['POST'])
 def see_post():
   return redirect('/post_page')
 

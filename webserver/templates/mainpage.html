@@ -84,12 +84,13 @@
         <br />
         <button>Group List</button>
         <br />
-        <button>Follows</button>
-        <br />
+        <form action="/see_follows" method='post'>
+            <button type="submit">Follows</button>
+        </form>
         <button>New Post</button>
         <br />
-        <a href = 'see_post'>
-            <button>See Posts</button>
-        </a>
+        <form action="/see_posts" method='post'>
+            <button type="submit">See Posts</button>
+        </form>
     </body>
 </html>
