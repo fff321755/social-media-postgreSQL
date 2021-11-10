@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Mood Express</title>
+        <meta charset="UTF-8" />
+        <meta name="description" content="This is where to show your mood." />
+        <style>
+            img {
+                width: 200px;
+                border-radius: 100px;
+                float: left;
+                margin-right: 10px;
+            }
+            p.username {
+                font-weight: bold;
+            }
+            em {
+                color: brown;
+                font-style: normal;
+            }
+
+            button {
+                background-color: #04aa6d;
+                color: white;
+                padding: 14px 14px;
+                margin: 8px 0;
+                border: none;
+                cursor: pointer;
+                width: 10%;
+            }
+            .res-circle {
+                /* (A) PERCENTAGE WIDTH & BORDER RADIUS */
+                width: 10%;
+                border-radius: 100%;
+
+                /* (B) BACKGROUND COLOR */
+                background: #a407b9;
+
+                /* (C) NECESSARY TO POSITION TEXT BLOCK */
+                line-height: 0;
+                position: relative;
+
+                /* align */
+                float:left;
+                margin-right: 10px;
+            }
+
+            /* (D) MATCH HEIGHT */
+            .res-circle::after {
+                content: "";
+                display: block;
+                padding-bottom: 100%;
+            }
+
+            /* (E) TEXT BLOCK */
+            .circle-txt {
+                /* (E1) CENTER TEXT IN CIRCLE */
+                position: absolute;
+                bottom: 50%;
+                width: 100%;
+                text-align: center;
+
+                /* (E2) THE FONT - NOT REALLY IMPORTANT */
+                font-family: arial, sans-serif;
+                font-weight: bold;
+                font-size: 30px;
+                color: white;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="res-circle">
+            <div class="circle-txt">Frank Wu</div>
+        </div>
+
+        <div>
+            <p class="username">@FrankWu</p>
+            <p>I am <em>mad</em></p>
+        </div>
+        <div style="clear:both;"></div>
+        <br />
+        <br />
+        <button>Profile</button>
+        <br />
+        <button>Group List</button>
+        <br />
+        <button>Follows</button>
+        <br />
+        <button>New Post</button>
+        <br />
+        <button>See Posts</button>
+    </body>
+</html>
