@@ -190,14 +190,29 @@ def main():
 
   return render_template("mainpage.html")
 
+#from main pages
+@app.route('/profile_page')
+def profile_page():
+  return render_template('profile_page.html')
 
-@app.route('/post_page')
-def post_page():
-  return render_template('post_page.html')
+@app.route('/glist_page')
+def glist_page():
+  return render_template('glist_page.html')
 
 @app.route('/follow_page')
 def follow_page():
   return render_template('follow_page.html')
+
+@app.route('/posting_page')
+def posting_page():
+  return render_template('posting_page.html')
+  
+@app.route('/post_page')
+def post_page():
+  return render_template('post_page.html')
+
+
+
 
 # Example of adding new data to the database
 @app.route('/add', methods=['POST'])
@@ -222,16 +237,26 @@ def login():
   else :
     return redirect('/')
 
-#see_post function
-@app.route('/see_posts', methods=['POST'])
-def see_post():
-  return redirect('/post_page')
+#main page to other pages functions 
+@app.route('/see_profile', methods=['POST'])
+def see_profile():
+  return redirect('/profile_page')
+
+@app.route('/see_glist', methods=['POST'])
+def see_glist():
+  return redirect('/glist_page')
 
 @app.route('/see_follows', methods=['POST'])
 def see_follows():
   return redirect('/follow_page')
 
+@app.route('/posting', methods=['POST'])
+def posting():
+  return redirect('/posting_page')
   
+@app.route('/see_posts', methods=['POST'])
+def see_posts():
+  return redirect('/post_page')
     
 # @app.route('/main')
 # def main():

@@ -80,15 +80,18 @@
         <div style="clear:both;"></div>
         <br />
         <br />
-        <button>Profile</button>
-        <br />
-        <button>Group List</button>
-        <br />
+        <form action="/see_profile" method='post'>
+            <button type="submit">Profile</button>
+        </form>
+        <form action="/see_glist" method='post'>
+            <button type="submit">Group List</button>
+        </form>
         <form action="/see_follows" method='post'>
             <button type="submit">Follows</button>
         </form>
-        <button>New Post</button>
-        <br />
+        <form action="/posting" method='post'>
+            <button type="submit">New Post</button>
+        </form>
         <form action="/see_posts" method='post'>
             <button type="submit">See Posts</button>
         </form>
