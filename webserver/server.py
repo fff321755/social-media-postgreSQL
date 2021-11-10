@@ -109,13 +109,8 @@ def index():
   #
   # example of a database query
   #
-<<<<<<< HEAD
   cursor = g.conn.execute("SELECT name, id FROM test")
   data = []
-=======
-  cursor = g.conn.execute("SELECT DISTINCT name FROM test")
-  names = []
->>>>>>> da551b4eb4aee15d83ec8810d2e2eac37e799a99
   for result in cursor:
     data.append((result['name'],result['id']))  # can also be accessed using result[0]  
   cursor.close()
