@@ -178,10 +178,26 @@ def test(myid):
 
   return redirect('/')
 
-@app.route('/another')
-def another():
-  return render_template("another.html")
+@app.route('/main')
+def main():
+  # personal_mood = g.conn.execute("SELECT FROM Dep_posts ")
+  # group_post = g.conn.execute("SELECT FROM Group_posts")
+  # #group_in = g.conn.execute("SELECT FROM User_in_group WHERE")
+  # group_gen = g.conn.execute("SELECT group_name FROM Groups")
+  # follow = g.conn.execute("SELECT uid_followed FROM follow WHERE uid_following = U.uid")
+  
 
+
+  return render_template("mainpage.html")
+
+
+@app.route('/post_page')
+def post_page():
+  return render_template('post_page.html')
+
+@app.route('/follow_page')
+def follow_page():
+  return render_template('follow_pagehtml')
 
 # Example of adding new data to the database
 @app.route('/add', methods=['POST'])
@@ -190,21 +206,30 @@ def add():
   g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
   return redirect('/')
 
-
-@app.route('/login')
+#login function
+@app.route('/login', methods=['POST'])
 def login():
-  username = request.form('username')
-  password = request.form('password')
-  cursor = g.conn.excute('SELECT email, password FROM Users WHERE email={%s}, password={%s}', username, password)
+  email = request.form['email']
+  #password = request.form('password')
+  cursor = g.conn.execute('SELECT U.email FROM Users U WHERE U.email=%s', email)
   ls = []
   for result in cursor:
-    ls,append((result['email'],result['password']))
+    ls.append(result['email'])
   cursor.close()
 
-  if len(ls) == 0:
-    return redirect('/login') 
+  if len(ls) != 0:
+    return redirect('/main') 
   else :
-    return redirect('/main')
+    return redirect('/')
+
+#see_post function
+@app.route('/see_post', methods=['POST'])
+def see_post():
+  return redirect('/post_page')
+
+@app.route('/see_follows', methods=['POST'])
+def see_follows():
+  return redirect('/follow_page')
 
   
     
