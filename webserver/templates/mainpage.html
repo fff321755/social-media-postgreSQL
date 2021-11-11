@@ -63,36 +63,37 @@
                 /* (E2) THE FONT - NOT REALLY IMPORTANT */
                 font-family: arial, sans-serif;
                 font-weight: bold;
-                font-size: 30px;
+                font-size: 15px;
                 color: white;
             }
         </style>
     </head>
     <body>
         <div class="res-circle">
-            <div class="circle-txt">Frank Wu</div>
+            <div class="circle-txt">{{name}}</div>
         </div>
 
         <div>
-            <p class="username">@FrankWu</p>
-            <p>I am <em>mad</em></p>
+            <p class="username">@{{name}}</p>
+            <p>I am <em>{{mood}}</em></p>
+            <p>Online : {{active}}</p>
         </div>
         <div style="clear:both;"></div>
         <br />
         <br />
-        <form action="/see_profile" method='post'>
+        <form action="/see_profile" method='get'>
             <button type="submit">Profile</button>
         </form>
-        <form action="/see_glist" method='post'>
+        <form action="/see_glist" method='get'>
             <button type="submit">Group List</button>
         </form>
-        <form action="/see_follows" method='post'>
+        <form action="/see_follows" method='get'>
             <button type="submit">Follows</button>
         </form>
-        <form action="/posting" method='post'>
+        <form action="/posting" method='get'>
             <button type="submit">New Post</button>
         </form>
-        <form action="/see_posts" method='post'>
+        <form action="/see_posts" method='get'>
             <button type="submit">See Posts</button>
         </form>
     </body>

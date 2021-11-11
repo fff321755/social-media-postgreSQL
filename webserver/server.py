@@ -46,7 +46,7 @@ engine = create_engine(DATABASEURI)
 #   name text
 # );""")
 # engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
-
+User_id = []
 
 @app.before_request
 def before_request():
@@ -180,28 +180,64 @@ def test(myid):
 
 @app.route('/main')
 def main():
-  # personal_mood = g.conn.execute("SELECT FROM Dep_posts ")
+  User_name = []
+  User_mood = []
+  User_active = []
+  cursor = g.conn.execute("SELECT name, present_mood, is_active FROM Users WHERE uid=%s", User_id[0])
+  for result in cursor:
+    User_name.append(result['name'])
+    User_mood.append(result['present_mood'])
+    User_active.append(result['is_active'])
+  cursor.close()
   # group_post = g.conn.execute("SELECT FROM Group_posts")
   # #group_in = g.conn.execute("SELECT FROM User_in_group WHERE")
   # group_gen = g.conn.execute("SELECT group_name FROM Groups")
   # follow = g.conn.execute("SELECT uid_followed FROM follow WHERE uid_following = U.uid")
   
+  context = dict(name=User_name[0], mood=User_mood[0], active= User_active[0])
 
-
-  return render_template("mainpage.html")
+  return render_template("mainpage.html", **context)
 
 #from main pages
 @app.route('/profile_page')
 def profile_page():
-  return render_template('profile_page.html')
+  User_profile = []
+  cursor = g.conn.execute("""SELECT * FROM Users WHERE uid = %s""", User_id[0])
+  for result in cursor:
+    User_profile.append((result["name"], result["email"], result["present_mood"]))
+  cursor.close()
+
+  context = dict(profile=User_profile)
+
+  return render_template('profile_page.html', **context)
 
 @app.route('/glist_page')
 def glist_page():
-  return render_template('glist_page.html')
+  group_list = []
+  cursor = g.conn.execute("""SELECT G.group_name FROM User_in_group Uig, Groups G 
+               WHERE Uig.group_id = G.group_id AND Uig.uid = %s""", User_id[0])
+  for result in cursor:
+    group_list.append(result['group_name'])
+  cursor.close()
+
+  context = dict(group_list = group_list)
+
+  return render_template('glist_page.html', **context)
 
 @app.route('/follow_page')
 def follow_page():
-  return render_template('follow_page.html')
+  following = []
+  active = []
+  cursor = g.conn.execute("""SELECT U.name, U.is_active FROM Follow F, Users U  
+      WHERE F.uid_followed = U.uid AND F.uid_following = %s""", User_id[0])
+
+  for result in cursor:
+    following.append((result['name'],result['is_active']))
+  cursor.close()
+
+  context = dict(following = following)
+
+  return render_template('follow_page.html', **context)
 
 @app.route('/posting_page')
 def posting_page():
@@ -224,13 +260,20 @@ def add():
 #login function
 @app.route('/login', methods=['POST'])
 def login():
+  global User_id
+  User_id = []
   email = request.form['email']
   #password = request.form('password')
-  cursor = g.conn.execute('SELECT U.email FROM Users U WHERE U.email=%s', email)
+  cursor = g.conn.execute('SELECT U.uid FROM Users U WHERE U.email=%s', email)
   ls = []
   for result in cursor:
-    ls.append(result['email'])
+    ls.append(result['uid'])
+    User_id.append(result['uid'])
   cursor.close()
+
+  #change activeness of user after login
+  cursor2 = g.conn.execute("UPDATE Users SET is_active = %s WHERE uid=%s", (True, User_id[0]))
+  cursor2.close()
 
   if len(ls) != 0:
     return redirect('/main') 
@@ -238,23 +281,23 @@ def login():
     return redirect('/')
 
 #main page to other pages functions 
-@app.route('/see_profile', methods=['POST'])
+@app.route('/see_profile', methods=['GET'])
 def see_profile():
   return redirect('/profile_page')
 
-@app.route('/see_glist', methods=['POST'])
+@app.route('/see_glist', methods=['GET'])
 def see_glist():
   return redirect('/glist_page')
 
-@app.route('/see_follows', methods=['POST'])
+@app.route('/see_follows', methods=['GET'])
 def see_follows():
   return redirect('/follow_page')
 
-@app.route('/posting', methods=['POST'])
+@app.route('/posting', methods=['GET'])
 def posting():
   return redirect('/posting_page')
   
-@app.route('/see_posts', methods=['POST'])
+@app.route('/see_posts', methods=['GET'])
 def see_posts():
   return redirect('/post_page')
     
