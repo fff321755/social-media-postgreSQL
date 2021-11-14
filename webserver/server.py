@@ -12,12 +12,14 @@ import os
   # accessible as a variable in index.html:
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
-from flask import Flask, request, render_template, g, redirect, Response
+from flask import Flask, request, render_template, g, redirect, Response, session
+from flask_session import Session
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
-
-
+app.config["SESSION_PERMANENT"] = False 
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
 #
 # The following is a dummy URI that does not connect to a valid database. You will need to modify it to connect to your Part 2 database in order to use the data.
 #
@@ -46,7 +48,9 @@ engine = create_engine(DATABASEURI)
 #   name text
 # );""")
 # engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
-User_id = []
+
+# User_id = []
+# session['uid'] = 0
 
 @app.before_request
 def before_request():
@@ -74,6 +78,7 @@ def teardown_request(exception):
     g.conn.close()
   except Exception as e:
     pass
+
 
 
 #
@@ -163,27 +168,27 @@ def teardown_request(exception):
 def index():
   return render_template("login.html")
 
-@app.route('/test/<myid>')
-def test(myid):
-  cursor = g.conn.execute("SELECT name FROM test where id={%s}", myid)
-  names = []
-  for result in cursor:
-    names.apppend(result['name'])
-  cursor.close()
+# @app.route('/test/<myid>')
+# def test(myid):
+#   cursor = g.conn.execute("SELECT name FROM test where id={%s}", myid)
+#   names = []
+#   for result in cursor:
+#     names.apppend(result['name'])
+#   cursor.close()
 
-  if len(names) == 0:
-    pass
-  else :
-    pass
+#   if len(names) == 0:
+#     pass
+#   else :
+#     pass
 
-  return redirect('/')
+#   return redirect('/')
 
 @app.route('/main')
 def main():
   User_name = []
   User_mood = []
   User_active = []
-  cursor = g.conn.execute("SELECT name, present_mood, is_active FROM Users WHERE uid=%s", User_id[0])
+  cursor = g.conn.execute("SELECT name, present_mood, is_active FROM Users WHERE uid=%s", session['uid'])
   for result in cursor:
     User_name.append(result['name'])
     User_mood.append(result['present_mood'])
@@ -202,14 +207,14 @@ def main():
 @app.route('/profile_page')
 def profile_page():
   User_profile = []
-  cursor = g.conn.execute("""SELECT * FROM Users WHERE uid = %s""", User_id[0])
+  cursor = g.conn.execute("""SELECT * FROM Users WHERE uid = %s""", session['uid'])
   for result in cursor:
     User_profile.append((result["name"], result["email"], result["present_mood"]))
   cursor.close()
   Posts = []
   cursor =g.conn.execute("""SELECT D.time, M.longitude, M.latitude, M.mood 
                           FROM Dep_posts D, Personal_mood M WHERE D.uid = %s AND 
-                          D.uid=M.uid AND D.post_no=M.post_no""", User_id[0])
+                          D.uid=M.uid AND D.post_no=M.post_no""", session['uid'])
   for result in cursor:
     Posts.append((result["time"],result["longitude"],result["latitude"],result["mood"]))
   cursor.close()
@@ -222,7 +227,7 @@ def profile_page():
 def glist_page():
   group_list = []
   cursor = g.conn.execute("""SELECT G.group_name FROM User_in_group Uig, Groups G 
-               WHERE Uig.group_id = G.group_id AND Uig.uid = %s""", User_id[0])
+               WHERE Uig.group_id = G.group_id AND Uig.uid = %s""", session['uid'])
   for result in cursor:
     group_list.append(result['group_name'])
   cursor.close()
@@ -236,7 +241,7 @@ def follow_page():
   following = []
   active = []
   cursor = g.conn.execute("""SELECT U.name, U.is_active FROM Follow F, Users U  
-      WHERE F.uid_followed = U.uid AND F.uid_following = %s""", User_id[0])
+      WHERE F.uid_followed = U.uid AND F.uid_following = %s""", session['uid'])
 
   for result in cursor:
     following.append((result['name'],result['is_active']))
@@ -267,19 +272,19 @@ def add():
 #login function
 @app.route('/login', methods=['POST'])
 def login():
-  global User_id
-  User_id = []
+  #global User_id
+  #User_id = []
   email = request.form['email']
   #password = request.form('password')
   cursor = g.conn.execute('SELECT U.uid FROM Users U WHERE U.email=%s', email)
   ls = []
   for result in cursor:
     ls.append(result['uid'])
-    User_id.append(result['uid'])
+    session['uid'] = result['uid']
   cursor.close()
 
   #change activeness of user after login
-  cursor2 = g.conn.execute("UPDATE Users SET is_active = %s WHERE uid=%s", (True, User_id[0]))
+  cursor2 = g.conn.execute("UPDATE Users SET is_active = %s WHERE uid=%s", (True, session['uid']))
   cursor2.close()
 
   if len(ls) != 0:
