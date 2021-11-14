@@ -206,8 +206,15 @@ def profile_page():
   for result in cursor:
     User_profile.append((result["name"], result["email"], result["present_mood"]))
   cursor.close()
+  Posts = []
+  cursor =g.conn.execute("""SELECT D.time, M.longitude, M.latitude, M.mood 
+                          FROM Dep_posts D, Personal_mood M WHERE D.uid = %s AND 
+                          D.uid=M.uid AND D.post_no=M.post_no""", User_id[0])
+  for result in cursor:
+    Posts.append((result["time"],result["longitude"],result["latitude"],result["mood"]))
+  cursor.close()
 
-  context = dict(profile=User_profile)
+  context = dict(profile=User_profile, posts=Posts)
 
   return render_template('profile_page.html', **context)
 
