@@ -19,7 +19,7 @@
                 font-style: normal;
             }
 
-            button {
+            .left-button {
                 background-color: #04aa6d;
                 color: white;
                 padding: 14px 14px;
@@ -66,35 +66,76 @@
                 font-size: 15px;
                 color: white;
             }
+            .float{
+                float:right;
+            }
+
         </style>
     </head>
     <body>
-        <div class="res-circle">
-            <div class="circle-txt">{{name}}</div>
-        </div>
+        <div class="">
+            <div class="res-circle">
+                <div class="circle-txt">{{name}}</div>
+            </div>
 
-        <div>
-            <p class="username">@{{name}}</p>
-            <p>I am <em>{{mood}}</em></p>
-            <p>Online : {{active}}</p>
+            <div>
+                <p class="username">@{{name}}</p>
+                <p>I am <em>{{mood}}</em></p>
+                <p>Online : {{active}}</p>
+            </div>
         </div>
-        <div style="clear:both;"></div>
+        <!-- <div style="clear:both;"></div> -->
         <br />
         <br />
-        <form action="/see_profile" method='get'>
-            <button type="submit">Profile</button>
-        </form>
-        <form action="/see_glist" method='get'>
-            <button type="submit">Group List</button>
-        </form>
-        <form action="/see_follows" method='get'>
-            <button type="submit">Follows</button>
-        </form>
-        <form action="/posting" method='get'>
-            <button type="submit">New Post</button>
-        </form>
-        <form action="/see_posts" method='get'>
-            <button type="submit">See Posts</button>
-        </form>
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+
+        <div class="">
+            <form action="/see_profile" method='get'>
+                <button type="submit", class="left-button">Profile</button>
+            </form>
+            <form action="/see_glist" method='get'>
+                <button type="submit", class="left-button">Group List</button>
+            </form>
+            <form action="/see_follows" method='get'>
+                <button type="submit", class="left-button">Follows</button>
+            </form>
+            <form action="/posting" method='get'>
+                <button type="submit", class="left-button">New Post</button>
+            </form>
+            <form action="/see_posts" method='get'>
+                <button type="submit", class="left-button">See Posts</button>
+            </form>
+        
+        {% for uid, mood, post_no  in posts %}
+        </div class = 'float'>
+            <p>Posted by {{uid}}</p>
+            <p>Mood at the moment : {{mood}}</p>
+            <form action="/post/{{uid}}/{{post_no}}" method='get'>
+                <button >details & comment</button>
+            </form>
+            <select>
+                <option>mood</option>
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6</option>
+            </select>
+            <form action="/" method='get'>
+                <button >express</button>
+            </form>
+            <form action="/to_user_profile/{{uid}}" method='get'>
+                <button >profile</button>
+            </form>
+        </div>
+        {% endfor %}
+      
+
+        
     </body>
 </html>

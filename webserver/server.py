@@ -199,8 +199,13 @@ def main():
   # #group_in = g.conn.execute("SELECT FROM User_in_group WHERE")
   # group_gen = g.conn.execute("SELECT group_name FROM Groups")
   # follow = g.conn.execute("SELECT uid_followed FROM follow WHERE uid_following = U.uid")
-  
-  context = dict(name=User_name[0], mood=User_mood[0], active= User_active[0])
+  Posts = []
+  cursor = g.conn.execute("SELECT uid, mood, post_no  FROM Personal_mood WHERE uid IN (SELECT uid_followed FROM Follow WHERE uid_following = %s)", session['uid'])
+  for result in cursor:
+    Posts.append((result["uid"],result["mood"], result["post_no"]))
+  cursor.close()
+
+  context = dict(name=User_name[0], mood=User_mood[0], active= User_active[0], posts=Posts)
 
   return render_template("mainpage.html", **context)
 
@@ -264,7 +269,7 @@ def post_page():
 def sign_ing_page():
   return render_template('sign_in_page.html')
 
-@app.route('/to_user_profile/<user_id>', methods=['POST'])
+@app.route('/to_user_profile/<user_id>', methods=['GET'])
 def to_user_profile(user_id):
     
   User_profile = []
@@ -334,6 +339,19 @@ def login():
     return redirect('/main') 
   else :
     return redirect('/')
+
+@app.route('/post/<uid>/<post_no>', methods=['GET'])
+def to_post(uid, post_no):
+  Posts = []
+  cursor = g.conn.execute("SELECT * FROM Dep_comments WHERE uid_post = %s AND post_no = %s", (uid, post_no))
+  for result in cursor:
+    Posts.append((result["uid_comment"],result["comment_no"], result["uid_comment"], result["text"]))
+  cursor.close()
+  context = dict(posts=Posts)
+
+  return render_template("post.html", **context)
+
+
 
 #main page to other pages functions 
 @app.route('/see_profile', methods=['GET'])
