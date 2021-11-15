@@ -359,27 +359,7 @@ def see_posts():
 @app.route('/sign_in', methods=['GET'])
 def sign_in():
   return redirect('/sign_in_page')
-    
-@app.route('/to_user_profile/<user_id>', methods=['POST'])
-def to_user_profile(user_id):
-    
-  User_profile = []
-  cursor = g.conn.execute("""SELECT * FROM Users WHERE uid = %s""", user_id)
-  
-  for result in cursor:
-    User_profile.append((result["name"], result["email"], result["present_mood"]))
-  cursor.close()
-  Posts = []
-  cursor =g.conn.execute("""SELECT D.time, M.longitude, M.latitude, M.mood 
-                          FROM Dep_posts D, Personal_mood M WHERE D.uid = %s AND 
-                          D.uid=M.uid AND D.post_no=M.post_no""", user_id)
-  for result in cursor:
-    Posts.append((result["time"],result["longitude"],result["latitude"],result["mood"]))
-  cursor.close()
 
-  context = dict(profile=User_profile, posts=Posts)
-
-  return render_template('user_profile_page.html', **context)
 # @app.route('/main')
 # def main():
   
