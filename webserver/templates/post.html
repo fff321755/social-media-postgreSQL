@@ -1,0 +1,49 @@
+<html>
+  <style>
+    body{ 
+      font-size: 15pt;
+      font-family: arial;
+    }
+  </style>
+
+
+<body>
+
+    <form action="/" method='get'>
+        <textarea name="mytext"
+        rows="6"
+        cols="40"
+        required>
+        In Put Your Comment
+        </textarea>
+        <button >comment</button>
+    </form>
+    {% for uid_comment, comment_no, uid_commentin, text in posts %}
+    </div>
+        <p>Posted by {{uid_comment}}</p>
+        <p>{{text}}</p>
+        <form action="/" method='get'>
+            <button >details & comment</button>
+        </form>
+        <select>
+            <option>mood</option>
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option>5</option>
+            <option>6</option>
+        </select>
+        <form action="/" method='get'>
+            <button >express</button>
+        </form>
+        <form action="/to_user_profile/{{uid_comment}}" method='get'>
+            <button >profile</button>
+        </form>
+    </div>
+    {% endfor %}
+
+</body>
+
+
+</html>
