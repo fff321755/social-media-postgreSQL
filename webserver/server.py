@@ -269,7 +269,7 @@ def post_page():
 def sign_ing_page():
   return render_template('sign_in_page.html')
 
-@app.route('/to_user_profile/<user_id>', methods=['GET'])
+@app.route('/to_user_profile/<user_id>', methods=['POST'])
 def to_user_profile(user_id):
     
   User_profile = []
