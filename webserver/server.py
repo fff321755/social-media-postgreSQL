@@ -51,6 +51,7 @@ engine = create_engine(DATABASEURI)
 
 # User_id = []
 # session['uid'] = 0
+UID = 25
 
 @app.before_request
 def before_request():
@@ -240,11 +241,11 @@ def glist_page():
 def follow_page():
   following = []
   active = []
-  cursor = g.conn.execute("""SELECT U.name, U.is_active FROM Follow F, Users U  
+  cursor = g.conn.execute("""SELECT U.name, U.uid ,U.is_active FROM Follow F, Users U  
       WHERE F.uid_followed = U.uid AND F.uid_following = %s""", session['uid'])
 
   for result in cursor:
-    following.append((result['name'],result['is_active']))
+    following.append((result['name'],result['uid'],result['is_active']))
   cursor.close()
 
   context = dict(following = following)
@@ -259,6 +260,30 @@ def posting_page():
 def post_page():
   return render_template('post_page.html')
 
+@app.route('/sign_in_page')
+def sign_ing_page():
+  return render_template('sign_in_page.html')
+
+@app.route('/to_user_profile/<user_id>', methods=['POST'])
+def to_user_profile(user_id):
+    
+  User_profile = []
+  cursor = g.conn.execute("""SELECT * FROM Users WHERE uid = %s""", user_id)
+  
+  for result in cursor:
+    User_profile.append((result["name"], result["email"], result["present_mood"]))
+  cursor.close()
+  Posts = []
+  cursor =g.conn.execute("""SELECT D.time, M.longitude, M.latitude, M.mood 
+                          FROM Dep_posts D, Personal_mood M WHERE D.uid = %s AND 
+                          D.uid=M.uid AND D.post_no=M.post_no""", user_id)
+  for result in cursor:
+    Posts.append((result["time"],result["longitude"],result["latitude"],result["mood"]))
+  cursor.close()
+
+  context = dict(profile=User_profile, posts=Posts)
+
+  return render_template('user_profile_page.html', **context)
 
 
 
@@ -268,6 +293,24 @@ def add():
   name = request.form['name']
   g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
   return redirect('/')
+
+@app.route('/create_account', methods=['POST'])
+def creat_account():
+  name = request.form['name']
+  email = request.form['email']
+  ls = []
+  cursor = g.conn.execute('SELECT email FROM Users WHERE email=%s', email)
+  for result in cursor:
+    ls.append(result['email'])
+  cursor.close()
+  global UID
+  if len(ls)==0:
+    UID = UID + 1
+    g.conn.execute("INSERT INTO Users VALUES (%s,%s,NULL,%s,%s)",
+                             (str(UID).zfill(10),name,email,False))
+    return redirect('/')
+  else:
+    return redirect('/sign_in_page')
 
 #login function
 @app.route('/login', methods=['POST'])
@@ -312,7 +355,31 @@ def posting():
 @app.route('/see_posts', methods=['GET'])
 def see_posts():
   return redirect('/post_page')
+
+@app.route('/sign_in', methods=['GET'])
+def sign_in():
+  return redirect('/sign_in_page')
     
+@app.route('/to_user_profile/<user_id>', methods=['POST'])
+def to_user_profile(user_id):
+    
+  User_profile = []
+  cursor = g.conn.execute("""SELECT * FROM Users WHERE uid = %s""", user_id)
+  
+  for result in cursor:
+    User_profile.append((result["name"], result["email"], result["present_mood"]))
+  cursor.close()
+  Posts = []
+  cursor =g.conn.execute("""SELECT D.time, M.longitude, M.latitude, M.mood 
+                          FROM Dep_posts D, Personal_mood M WHERE D.uid = %s AND 
+                          D.uid=M.uid AND D.post_no=M.post_no""", user_id)
+  for result in cursor:
+    Posts.append((result["time"],result["longitude"],result["latitude"],result["mood"]))
+  cursor.close()
+
+  context = dict(profile=User_profile, posts=Posts)
+
+  return render_template('user_profile_page.html', **context)
 # @app.route('/main')
 # def main():
   

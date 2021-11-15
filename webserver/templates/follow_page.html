@@ -4,14 +4,27 @@
       font-size: 15pt;
       font-family: arial;
     }
+    button {
+      background-color: #04aa6d;
+      color: white;
+      padding: 14px 14px;
+      margin: 8px 0;
+      border: none;
+      cursor: pointer;
+      width: 10%;
+    }
   </style>
 
 
 <body>
   <h1>You are following...</h1>
   <div>
-    {% for user, active in following %}
+    {% for user, uid, active in following %}
     <div>{{user}} : {{active}}</div>
+    <form action=/to_user_profile/{{uid}} method='post'>
+      <button type='submit'>See Profile</button>
+    </form>
+
     {% endfor %}
   </div>
 

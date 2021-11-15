@@ -1,0 +1,62 @@
+<html>
+  <style>
+    body{ 
+      font-size: 15pt;
+      font-family: arial;
+    }
+    button {
+        background-color: #04aa6d;
+        color: white;
+        padding: 14px 14px;
+        margin: 8px 0;
+        border: none;
+        cursor: pointer;
+        width: 10%;
+    }
+  </style>
+
+
+<body>
+  <h1>Type your Information</h1>
+
+
+  <form action="/create_account" method="post">
+    <!-- <div class="imgcontainer">
+        <img src="img_avatar2.png" alt="Avatar" class="avatar" />
+    </div> -->
+
+    <div class="container">
+        <label for="name"><b>Name</b></label>
+        <input
+            type="text"
+            placeholder="Enter Username"
+            name="name"
+            required
+        />
+
+        <label for="email"><b>Email</b></label>
+        <input
+            type="text"
+            placeholder="Enter Password"
+            name="email"
+            required
+        />
+
+        <button type="submit">SIGN IN</button>
+        <!-- <label>
+            <input type="checkbox" checked="checked" name="remember" />
+            Remember me
+        </label> -->
+    </div>
+
+    <!-- <div class="container" style="background-color: #f1f1f1">
+        <button type="button" class="cancelbtn">Cancel</button>
+        <span class="psw">Forgot <a href="#">password?</a></span>
+    </div> -->
+  </form>
+
+
+</body>
+
+
+</html>

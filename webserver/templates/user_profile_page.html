@@ -1,0 +1,42 @@
+<html>
+  <style>
+    body{ 
+      font-size: 15pt;
+      font-family: arial;
+    }
+  </style>
+
+
+<body>
+  <h1>Profile</h1>
+
+  <div>
+    {% for name, email, mood in profile %}
+    <div>Name : {{name}}</div>
+    <div>Email : {{email}}</div>
+    <div>Mood : {{mood}}</div>
+    {% endfor %}
+  </div>
+
+  <br />
+  <div>
+    {% for time, longitude, latitude, mood in posts %}
+    <br />
+    <div>Posted at  ({{longitude}},{{latitude}})  when {{time}}</div>
+    <div>Mood at the moment : {{mood}}</div>
+    <form action="/" method='get'>
+      <button >comment</button>
+    </form>
+    {% endfor %}
+  </div>
+
+<!-- <p><a href="follow_page">Go to the other page</a></p>
+
+<form method="POST" action="/add">
+<p>Name of new computer scientist: <input type="text" name="name"> <input type="submit" value="Add"></p>
+</form> -->
+
+</body>
+
+
+</html>
