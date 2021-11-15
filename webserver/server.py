@@ -232,15 +232,42 @@ def profile_page():
 @app.route('/glist_page')
 def glist_page():
   group_list = []
-  cursor = g.conn.execute("""SELECT G.group_name FROM User_in_group Uig, Groups G 
+  cursor = g.conn.execute("""SELECT G.group_name, G.group_id FROM User_in_group Uig, Groups G 
                WHERE Uig.group_id = G.group_id AND Uig.uid = %s""", session['uid'])
   for result in cursor:
-    group_list.append(result['group_name'])
+    group_list.append((result['group_name'], result['group_id']))
   cursor.close()
 
   context = dict(group_list = group_list)
 
   return render_template('glist_page.html', **context)
+
+@app.route('/group_page/<group_id>', methods=['POST'])
+def group_page(group_id):
+  
+  Group_info = []
+  cursor = g.conn.execute("""SELECT group_name, type FROM Groups 
+                             WHERE group_id = %s""", group_id)
+  
+  for result in cursor:
+    Group_info.append((result['group_name'],result['type']))
+  cursor.close()
+
+  Group_post = []
+  cursor = g.conn.execute("""SELECT D.time, G.text
+                              FROM Dep_posts D, Group_posts G
+                              WHERE D.uid = G.uid AND D.post_no=G.post_no AND
+                              G.group_id = %s""", group_id)
+                             ## possibly ordered by time?
+
+  for result in cursor:
+    Group_post.append((result['time'],result['text']))
+  cursor.close()
+
+  context = dict(group_info = Group_info, group_post = Group_post)
+
+  return render_template('group_page.html', **context)
+
 
 @app.route('/follow_page')
 def follow_page():

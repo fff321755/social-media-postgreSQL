@@ -4,6 +4,15 @@
       font-size: 15pt;
       font-family: arial;
     }
+    button {
+      background-color: #04aa6d;
+      color: white;
+      padding: 10px 10px;
+      margin: 8px 0;
+      border: none;
+      cursor: pointer;
+      width: 10%;
+    }
   </style>
 
 
@@ -11,8 +20,11 @@
   <h1>Group List Page</h1>
 
   <div>
-    {% for group_name in group_list %}
+    {% for group_name, group_id in group_list %}
     <div>{{group_name}}</div>
+    <form action=/group_page/{{group_id}} method='post'>
+      <button type='submit'>Go to group page</button>
+    </form>
     {% endfor %}
   </div>
 
