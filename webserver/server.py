@@ -284,7 +284,7 @@ def post_page():
                              D.uid IN (SELECT uid_followed FROM Follow 
                              WHERE uid_following != %s)""", session['uid'])
   for result in cursor:
-    Personaln_post.append((result['uid'],result['mood'],result['post_no'],result['time']))
+    Personal_post.append((result['uid'],result['mood'],result['post_no'],result['time']))
   cursor.close()
   
   Group_post = []
