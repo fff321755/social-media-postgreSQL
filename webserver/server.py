@@ -50,8 +50,6 @@ engine = create_engine(DATABASEURI)
 # );""")
 # engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
 
-# User_id = []
-# session['uid'] = 0
 UID = 26
 
 @app.before_request
@@ -170,20 +168,6 @@ def teardown_request(exception):
 def index():
   return render_template("login.html")
 
-# @app.route('/test/<myid>')
-# def test(myid):
-#   cursor = g.conn.execute("SELECT name FROM test where id={%s}", myid)
-#   names = []
-#   for result in cursor:
-#     names.apppend(result['name'])
-#   cursor.close()
-
-#   if len(names) == 0:
-#     pass
-#   else :
-#     pass
-
-#   return redirect('/')
 
 @app.route('/main')
 def main():
@@ -196,10 +180,8 @@ def main():
     User_mood.append(result['present_mood'])
     User_active.append(result['is_active'])
   cursor.close()
-  # group_post = g.conn.execute("SELECT FROM Group_posts")
-  # #group_in = g.conn.execute("SELECT FROM User_in_group WHERE")
-  # group_gen = g.conn.execute("SELECT group_name FROM Groups")
-  # follow = g.conn.execute("SELECT uid_followed FROM follow WHERE uid_following = U.uid")
+
+  #post from following users
   Posts = []
   cursor = g.conn.execute("SELECT uid, mood, post_no  FROM Personal_mood WHERE uid IN (SELECT uid_followed FROM Follow WHERE uid_following = %s)", session['uid'])
   for result in cursor:
@@ -296,7 +278,29 @@ def posting_page():
   
 @app.route('/post_page')
 def post_page():
-  return render_template('post_page.html')
+  Personal_post = []
+  cursor = g.conn.execute("""SELECT D.uid, P.mood, D.post_no, D.time FROM Personal_mood P, Dep_posts D
+                             WHERE P.uid = D.uid AND P.post_no = D.post_no AND 
+                             D.uid IN (SELECT uid_followed FROM Follow 
+                             WHERE uid_following != %s)""", session['uid'])
+  for result in cursor:
+    Personaln_post.append((result['uid'],result['mood'],result['post_no'],result['time']))
+  cursor.close()
+  
+  Group_post = []
+  cursor = g.conn.execute("""SELECT D.time, G.text, G.image_url
+                              FROM Dep_posts D, Group_posts G
+                              WHERE D.uid = G.uid AND D.post_no=G.post_no AND
+                              G.group_id IN (SELECT group_id FROM User_in_group
+                              WHERE uid != %s) """, session['uid'])
+                             ## possibly ordered by time?
+  for result in cursor:
+    Group_post.append((result['time'],result['text'],result['image_url']))
+  cursor.close()
+
+  context = dict(personal_post=Personal_post, group_post=Group_post)
+
+  return render_template('post_page.html', **context)
 
 @app.route('/sign_in_page')
 def sign_ing_page():
@@ -324,13 +328,6 @@ def to_user_profile(user_id):
   return render_template('user_profile_page.html', **context)
 
 
-
-# Example of adding new data to the database
-@app.route('/add', methods=['POST'])
-def add():
-  name = request.form['name']
-  g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
-  return redirect('/')
 
 @app.route('/create_account', methods=['POST'])
 def creat_account():

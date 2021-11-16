@@ -8,22 +8,23 @@
 
 
 <body>
-  <h1>Post Page</h1>
-  <!-- <div>{{data}}</div>
+  <h1>Recent Posts</h1>
 
   <div>
-    {% for n in data %}
-    <div>{{n}}</div>
+    {% for uid, mood, post_no, time in personal_post %}
+    <div>Posted by : {{uid}}</div>
+    <div>sted when : {{time}}</div>Po
+    <div>Mood : {{mood}}</div>
     {% endfor %}
-  </div>  -->
+  </div>
+  <br />
 
-<p><a href="post_page">Go to the other page</a></p>
-
-<form method="POST" action="/add">
-<p>Name of new computer scientist: <input type="text" name="name"> <input type="submit" value="Add"></p>
-</form>
-
-</body>
-
-
-</html>
+  <br />
+  <div>
+    {% for time, text, url in group_post %}
+    <br />
+    <div>Posted when {{time}}</div>
+    <div>{{url}}</div>
+    <div>{{text}}</div>
+    {% endfor %}
+  </div>
