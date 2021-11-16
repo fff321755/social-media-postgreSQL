@@ -4,24 +4,65 @@
       font-size: 15pt;
       font-family: arial;
     }
+    button {
+        background-color: #04aa6d;
+        color: white;
+        padding: 10px 10px;
+        margin: 8px 0;
+        border: none;
+        cursor: pointer;
+        width: 10%;
+    }
   </style>
 
 
 <body>
-  <h1>Posting Page</h1>
-  <!-- <div>{{data}}</div>
+  <h1>Posting Personal Mood</h1>
 
-  <div>
-    {% for n in data %}
-    <div>{{n}}</div>
-    {% endfor %}
-  </div> -->
 
-<p><a href="follow_page">Go to the other page</a></p>
+  <form action="/create_personal_post" method="post">
+    <!-- <div class="imgcontainer">
+        <img src="img_avatar2.png" alt="Avatar" class="avatar" />
+    </div> -->
 
-<form method="POST" action="/add">
-<p>Name of new computer scientist: <input type="text" name="name"> <input type="submit" value="Add"></p>
-</form>
+    <div class="container">
+        <label for="mood"><b>mood</b></label>
+        <input
+            type="text"
+            placeholder="Enter Your mood"
+            name="mood"
+            required
+        />
+
+        <label for="longitude"><b>longitude</b></label>
+        <input
+            type="text"
+            placeholder="Enter longitude of current location"
+            name="longitude"
+            required
+        />
+
+        <label for="latitude"><b>latitude</b></label>
+        <input
+            type="text"
+            placeholder="Enter latitude of current location"
+            name="latitude"
+            required
+        />
+
+        <button type="submit">POST</button>
+        <!-- <label>
+            <input type="checkbox" checked="checked" name="remember" />
+            Remember me
+        </label> -->
+    </div>
+
+    <!-- <div class="container" style="background-color: #f1f1f1">
+        <button type="button" class="cancelbtn">Cancel</button>
+        <span class="psw">Forgot <a href="#">password?</a></span>
+    </div> -->
+  </form>
+
 
 </body>
 

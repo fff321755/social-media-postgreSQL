@@ -14,6 +14,7 @@ from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response, session
 from flask_session import Session
+from datetime import datetime, timezone
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -51,7 +52,7 @@ engine = create_engine(DATABASEURI)
 
 # User_id = []
 # session['uid'] = 0
-UID = 25
+UID = 26
 
 @app.before_request
 def before_request():
@@ -242,6 +243,7 @@ def glist_page():
 
   return render_template('glist_page.html', **context)
 
+#from group list page
 @app.route('/group_page/<group_id>', methods=['POST'])
 def group_page(group_id):
   
@@ -254,14 +256,14 @@ def group_page(group_id):
   cursor.close()
 
   Group_post = []
-  cursor = g.conn.execute("""SELECT D.time, G.text
+  cursor = g.conn.execute("""SELECT D.time, G.text, G.image_url
                               FROM Dep_posts D, Group_posts G
                               WHERE D.uid = G.uid AND D.post_no=G.post_no AND
                               G.group_id = %s""", group_id)
                              ## possibly ordered by time?
 
   for result in cursor:
-    Group_post.append((result['time'],result['text']))
+    Group_post.append((result['time'],result['text'],result['image_url']))
   cursor.close()
 
   context = dict(group_info = Group_info, group_post = Group_post)
@@ -343,6 +345,23 @@ def creat_account():
     return redirect('/')
   else:
     return redirect('/sign_in_page')
+
+@app.route('/create_personal_post', methods=['POST'])
+def create_post():
+  mood = request.form['mood']
+  longitude = request.form['longitude']
+  latitude = request.form['latitude']
+
+  g.conn.execute("""INSERT INTO Dep_posts VALUES 
+                    ((SELECT MAX(post_no) FROM Dep_posts WHERE uid=%s)+1,%s, %s)""",
+                    (session['uid'],str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')),
+                    session['uid']))
+  
+  g.conn.execute("""INSERT INTO Personal_mood VALUES
+                    (%s,%s,%s,(SELECT MAX(post_no) FROM Dep_posts WHERE uid=%s),%s)""",
+                    (longitude,latitude,session['uid'],session['uid'],mood))
+
+  return redirect('/main')
 
 #login function
 @app.route('/login', methods=['POST'])
