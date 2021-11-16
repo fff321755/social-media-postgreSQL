@@ -68,6 +68,10 @@ def before_request():
     import traceback; traceback.print_exc()
     g.conn = None
 
+  #Check Login
+  # if session['uid']:
+  #   render_template("login.html")
+
 @app.teardown_request
 def teardown_request(exception):
   """
@@ -164,11 +168,73 @@ def teardown_request(exception):
 # The functions for each app.route need to have different names
 #
 
+
+
+# login.html ---------------------------------------------------------------------------------------------------------
+
 @app.route('/')
 def index():
   return render_template("login.html")
 
+@app.route('/sign_in', methods=['GET'])
+def sign_in():
+  return redirect('/sign_in_page')
 
+#login function
+@app.route('/login', methods=['POST'])
+def login():
+  #global User_id
+  #User_id = []
+  email = request.form['email']
+  password = request.form['password']
+  cursor = g.conn.execute("SELECT U.uid FROM Users U WHERE U.email='{}' AND U.password='{}'".format(email, password))
+  ls = []
+  for result in cursor:
+    ls.append(result['uid'])
+    session['uid'] = result['uid']
+  cursor.close()
+
+  if not ls:
+    return redirect('/')
+
+  #change activeness of user after login
+  cursor2 = g.conn.execute("UPDATE Users SET is_active = %s WHERE uid=%s", (True, session['uid']))
+  cursor2.close()
+
+  return redirect('/main') 
+
+
+# sign_in_page.html ---------------------------------------------------------------------------------------------------------
+
+@app.route('/create_account', methods=['POST'])
+def creat_account():
+  # name = request.form['name']
+  # email = request.form['email']
+  # ls = []
+  # z g.conn.execute('SELECT email FROM Users WHERE email=%s', email)
+  # for result in cursor:
+  #   ls.append(result['email'])
+  # cursor.close()
+  # global UID
+  # if len(ls)==0:
+  #   UID = UID + 1
+  #   g.conn.execute("INSERT INTO Users VALUES (%s,%s,NULL,%s,%s)",
+  #                            (str(UID).zfill(10),name,email,False))
+  #   return redirect('/')
+  # else:
+  #   return redirect('/sign_in_page')
+
+  name = request.form['name']
+  email = request.form['email']
+  password = request.form['password']
+  g.conn.execute("INSERT INTO Users VALUES (DEFAULT,'{}',NULL,'{}','{}', False)".format(name,email,password)) 
+
+  #if failed
+  # TODO
+
+  return redirect('/')
+
+# mainpage.html ---------------------------------------------------------------------------------------------------------
 @app.route('/main')
 def main():
   User_name = []
@@ -191,6 +257,8 @@ def main():
   context = dict(name=User_name[0], mood=User_mood[0], active= User_active[0], posts=Posts)
 
   return render_template("mainpage.html", **context)
+
+ 
 
 #from main pages
 @app.route('/profile_page')
@@ -327,25 +395,13 @@ def to_user_profile(user_id):
 
   return render_template('user_profile_page.html', **context)
 
-
-
-@app.route('/create_account', methods=['POST'])
-def creat_account():
+# Example of adding new data to the database
+@app.route('/add', methods=['POST'])
+def add():
   name = request.form['name']
-  email = request.form['email']
-  ls = []
-  cursor = g.conn.execute('SELECT email FROM Users WHERE email=%s', email)
-  for result in cursor:
-    ls.append(result['email'])
-  cursor.close()
-  global UID
-  if len(ls)==0:
-    UID = UID + 1
-    g.conn.execute("INSERT INTO Users VALUES (%s,%s,NULL,%s,%s)",
-                             (str(UID).zfill(10),name,email,False))
-    return redirect('/')
-  else:
-    return redirect('/sign_in_page')
+  g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
+  return redirect('/')
+
 
 @app.route('/create_personal_post', methods=['POST'])
 def create_post():
@@ -380,28 +436,6 @@ def create_group_post(group_id):
 
   return redirect('/group_page/'+group_id)
 
-#login function
-@app.route('/login', methods=['POST'])
-def login():
-  #global User_id
-  #User_id = []
-  email = request.form['email']
-  #password = request.form('password')
-  cursor = g.conn.execute('SELECT U.uid FROM Users U WHERE U.email=%s', email)
-  ls = []
-  for result in cursor:
-    ls.append(result['uid'])
-    session['uid'] = result['uid']
-  cursor.close()
-
-  #change activeness of user after login
-  cursor2 = g.conn.execute("UPDATE Users SET is_active = %s WHERE uid=%s", (True, session['uid']))
-  cursor2.close()
-
-  if len(ls) != 0:
-    return redirect('/main') 
-  else :
-    return redirect('/')
 
 @app.route('/post/<uid>/<post_no>', methods=['GET'])
 def to_post(uid, post_no):
@@ -413,8 +447,6 @@ def to_post(uid, post_no):
   context = dict(posts=Posts)
 
   return render_template("post.html", **context)
-
-
 
 #main page to other pages functions 
 @app.route('/see_profile', methods=['GET'])
@@ -437,9 +469,7 @@ def posting():
 def see_posts():
   return redirect('/post_page')
 
-@app.route('/sign_in', methods=['GET'])
-def sign_in():
-  return redirect('/sign_in_page')
+
 
 # @app.route('/main')
 # def main():
