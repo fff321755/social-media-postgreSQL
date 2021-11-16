@@ -22,7 +22,7 @@
   <div>
     {% for group_name, group_id in group_list %}
     <div>{{group_name}}</div>
-    <form action=/group_page/{{group_id}} method='post'>
+    <form action=/group_page/{{group_id}} method='get'>
       <button type='submit'>Go to group page</button>
     </form>
     {% endfor %}

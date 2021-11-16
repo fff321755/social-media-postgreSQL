@@ -244,7 +244,7 @@ def glist_page():
   return render_template('glist_page.html', **context)
 
 #from group list page
-@app.route('/group_page/<group_id>', methods=['POST'])
+@app.route('/group_page/<group_id>', methods=['GET'])
 def group_page(group_id):
   
   Group_info = []
@@ -266,10 +266,14 @@ def group_page(group_id):
     Group_post.append((result['time'],result['text'],result['image_url']))
   cursor.close()
 
-  context = dict(group_info = Group_info, group_post = Group_post)
+  context = dict(group_info = Group_info, group_post = Group_post, gid = group_id)
 
   return render_template('group_page.html', **context)
 
+@app.route('/group_posting_page/<group_id>', methods=['POST'])
+def group_posting_page(group_id):
+  context = dict(group_info = group_id)
+  return render_template("group_posting_page.html", **context)
 
 @app.route('/follow_page')
 def follow_page():
@@ -362,6 +366,22 @@ def create_post():
                     (longitude,latitude,session['uid'],session['uid'],mood))
 
   return redirect('/main')
+
+@app.route('/create_group_post/<group_id>', methods=['POST'])
+def create_group_post(group_id):
+  text = request.form['text']
+  image = request.form['image']
+
+  g.conn.execute("""INSERT INTO Dep_posts VALUES 
+                    ((SELECT MAX(post_no) FROM Dep_posts WHERE uid=%s)+1,%s, %s)""",
+                    (session['uid'],str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')),
+                    session['uid']))
+
+  g.conn.execute("""INSERT INTO Group_posts VALUES
+                    (%s,%s,(SELECT MAX(post_no) FROM Dep_posts WHERE uid=%s),%s,%s)""",
+                    (session['uid'],group_id,session['uid'],text,image))
+
+  return redirect('/group_page/'+group_id)
 
 #login function
 @app.route('/login', methods=['POST'])

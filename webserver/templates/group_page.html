@@ -15,7 +15,11 @@
     <div>Type : {{type}}</div>
     {% endfor %}
   </div>
-
+  <br />
+  <form action="/group_posting_page/{{gid}}" method='post'>
+    <button>New Post</button>
+  </form>
+  
   <br />
   <div>
     {% for time, text, url in group_post %}
