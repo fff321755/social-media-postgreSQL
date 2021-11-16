@@ -23,9 +23,9 @@ CREATE TABLE Dep_posts              --weak entity relationship
  FOREIGN KEY (uid) REFERENCES Users);
 
 CREATE TABLE Group_posts
-(uid SERIAL,
- group_id SERIAL NOT NULL,
- post_no SERIAL CHECK (post_no > 0),
+(uid INTEGER,
+ group_id INTEGER NOT NULL,
+ post_no INTEGER CHECK (post_no > 0),
  text VARCHAR(200),
  image_URL VARCHAR(100) CHECK(image_URL LIKE 'https://_%'),
  PRIMARY KEY(uid, post_no),
@@ -37,8 +37,8 @@ CREATE TABLE Group_posts
 CREATE TABLE Personal_mood
 (longitude DECIMAL CHECK (longitude <= 180 AND longitude >= -180),
  latitude DECIMAL CHECK (latitude <= 90 AND latitude >= -90), 
- uid SERIAL,
- post_no SERIAL CHECK (post_no > 0),
+ uid INTEGER,
+ post_no INTEGER CHECK (post_no > 0),
  mood INTEGER CHECK (mood > 0 AND mood < 7), -- we have 6 catagory of mood
  PRIMARY KEY(uid, post_no),
  FOREIGN KEY(uid, post_no) REFERENCES Dep_posts ON DELETE CASCADE);
@@ -48,9 +48,9 @@ CREATE TABLE Personal_mood
 
 CREATE TABLE Dep_comments         --weak entity relationship
 (comment_no SERIAL CHECK (comment_no > 0),
- uid_comment SERIAL,
- uid_post SERIAL,
- post_no SERIAL CHECK (post_no > 0),
+ uid_comment INTEGER,
+ uid_post INTEGER,
+ post_no INTEGER CHECK (post_no > 0),
  text VARCHAR(200),
  time timestamp,
  CHECK ((uid_post = NULL AND post_no = NULL) OR (uid_post <> NULL AND post_no <> NULL)),    -- uid_post and post_no should be NULL together when the comment is comment to another comment
@@ -62,8 +62,8 @@ CREATE TABLE Dep_comments         --weak entity relationship
 --  participation of Group to the User (If no users stays in a group, that group will be deleted automatically)
 
 CREATE TABLE User_in_group
-(uid SERIAL,
- group_id SERIAL,
+(uid INTEGER,
+ group_id INTEGER,
  level INTEGER CHECK (level < 6 AND level > 0),     -- we have 5 level in total
  PRIMARY KEY(uid, group_id),
  FOREIGN KEY(uid) REFERENCES Users ON DELETE CASCADE,
@@ -71,25 +71,25 @@ CREATE TABLE User_in_group
 
 
 CREATE TABLE Follow
-(uid_following SERIAL,
- uid_followed SERIAL,
+(uid_following INTEGER,
+ uid_followed INTEGER,
  PRIMARY KEY (uid_following, uid_followed),
  FOREIGN KEY(uid_following) REFERENCES Users ON DELETE CASCADE,
  FOREIGN KEY(uid_followed) REFERENCES Users ON DELETE CASCADE);
 
 CREATE TABLE comments_to_comments
-(uid1 SERIAL,
- uid2 SERIAL,
- comments_no1 SERIAL CHECK (comments_no1 > 0),
- comments_no2 SERIAL CHECK (comments_no2 > 0),
+(uid1 INTEGER,
+ uid2 INTEGER,
+ comments_no1 INTEGER CHECK (comments_no1 > 0),
+ comments_no2 INTEGER CHECK (comments_no2 > 0),
  PRIMARY KEY(uid1, comments_no1, uid2, comments_no2),
  FOREIGN KEY(uid1, comments_no1) REFERENCES Dep_comments,
  FOREIGN KEY(uid2, comments_no2) REFERENCES Dep_comments ON DELETE CASCADE);
 
 CREATE TABLE Responses_to_post
-(uid_post SERIAL,
- post_no SERIAL CHECK (post_no > 0),
- uid_like SERIAL,
+(uid_post INTEGER,
+ post_no INTEGER CHECK (post_no > 0),
+ uid_like INTEGER,
  mood INTEGER CHECK (mood > 0 AND mood < 7),
  time timestamp,
  PRIMARY KEY(uid_post, post_no, uid_like),
@@ -98,9 +98,9 @@ CREATE TABLE Responses_to_post
 
 
 CREATE TABLE Responses_to_comment
-(uid_comment SERIAL,
+(uid_comment INTEGER,
  comment_no INTEGER CHECK (comment_no > 0),
- uid_like SERIAL,
+ uid_like INTEGER,
  mood INTEGER CHECK (mood > 0 AND mood < 7),
  time timestamp,
  PRIMARY KEY(uid_comment, comment_no, uid_like),
