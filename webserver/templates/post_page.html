@@ -13,18 +13,24 @@
   <div>
     {% for uid, mood, post_no, time in personal_post %}
     <div>Posted by : {{uid}}</div>
-    <div>sted when : {{time}}</div>Po
+    <div>sted when : {{time}}</div>
     <div>Mood : {{mood}}</div>
+    <form action=/to_user_profile/{{uid}} method='post'>
+      <button type='submit'>See Profile</button>
+    </form>
     {% endfor %}
   </div>
   <br />
 
   <br />
   <div>
-    {% for time, text, url in group_post %}
+    {% for time, text, url, group_id in group_post %}
     <br />
     <div>Posted when {{time}}</div>
     <div>{{url}}</div>
     <div>{{text}}</div>
+    <form action=/join_group/{{group_id}} method='post'>
+      <button type='submit'>Join Group</button>
+    </form>
     {% endfor %}
   </div>

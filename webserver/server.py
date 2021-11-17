@@ -293,6 +293,10 @@ def glist_page():
 
   return render_template('glist_page.html', **context)
 
+@app.route('/creating_group_page', methods=['GET'])
+def create_group():
+  return render_template("creating_group_page.html")
+
 #from group list page
 @app.route('/group_page/<group_id>', methods=['GET'])
 def group_page(group_id):
@@ -356,19 +360,26 @@ def post_page():
   cursor.close()
   
   Group_post = []
-  cursor = g.conn.execute("""SELECT D.time, G.text, G.image_url
+  cursor = g.conn.execute("""SELECT D.time, G.text, G.image_url, G.group_id
                               FROM Dep_posts D, Group_posts G
                               WHERE D.uid = G.uid AND D.post_no=G.post_no AND
                               G.group_id IN (SELECT group_id FROM User_in_group
                               WHERE uid != %s) """, session['uid'])
                              ## possibly ordered by time?
   for result in cursor:
-    Group_post.append((result['time'],result['text'],result['image_url']))
+    Group_post.append((result['time'],result['text'],result['image_url'],result['group_id']))
   cursor.close()
 
   context = dict(personal_post=Personal_post, group_post=Group_post)
 
   return render_template('post_page.html', **context)
+
+@app.route('/join_group/<group_id>', methods=['POST'])
+def join_group(group_id):
+  g.conn.execute("""INSERT INTO User_in_group VALUES 
+                    (%s,%s,1)""", session['uid'], group_id)
+
+  return redirect('/group_page/'+group_id)
 
 @app.route('/sign_in_page')
 def sign_ing_page():
@@ -435,6 +446,19 @@ def create_group_post(group_id):
                     (session['uid'],group_id,session['uid'],text,image))
 
   return redirect('/group_page/'+group_id)
+
+@app.route('/create_new_group', methods=['POST'])
+def create_new_group():
+  group_name = request.form['group_name']
+  mood = request.form['mood']
+
+  g.conn.execute("""INSERT INTO Groups VALUES 
+                    (DEFAULT, {}, '{}')""".format(mood, group_name))
+
+  g.conn.execute("""INSERT INTO User_in_group VALUES
+                    ({},(SELECT last_value FROM Groups_group_id_seq),5)""".format(session['uid']))
+
+  return redirect('/glist_page')
 
 
 @app.route('/post/<uid>/<post_no>', methods=['GET'])

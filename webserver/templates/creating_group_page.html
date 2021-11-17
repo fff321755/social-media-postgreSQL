@@ -1,0 +1,64 @@
+<html>
+  <style>
+    body{ 
+      font-size: 15pt;
+      font-family: arial;
+    }
+    button {
+        background-color: #04aa6d;
+        color: white;
+        padding: 10px 10px;
+        margin: 8px 0;
+        border: none;
+        cursor: pointer;
+        width: 10%;
+    }
+  </style>
+
+
+<body>
+  <h1>Create New Group</h1>
+
+
+  <form action="/create_new_group" method="post">
+    <!-- <div class="imgcontainer">
+        <img src="img_avatar2.png" alt="Avatar" class="avatar" />
+    </div> -->
+
+    <div class="container">
+        <label for="group_name"><b>Group Name</b></label>
+        <input
+            type="text"
+            placeholder="Group Name"
+            name="group_name"
+            required
+        />
+
+        <label for="mood"><b>Mood Type</b></label>
+        <input
+            type="text"
+            placeholder="Mood Type"
+            name="mood"
+            required
+        />
+
+        
+
+        <button type="submit">CREATE</button>
+        <!-- <label>
+            <input type="checkbox" checked="checked" name="remember" />
+            Remember me
+        </label> -->
+    </div>
+
+    <!-- <div class="container" style="background-color: #f1f1f1">
+        <button type="button" class="cancelbtn">Cancel</button>
+        <span class="psw">Forgot <a href="#">password?</a></span>
+    </div> -->
+  </form>
+
+
+</body>
+
+
+</html>
