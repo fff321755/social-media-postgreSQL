@@ -249,14 +249,166 @@ def main():
 
   #post from following users
   Posts = []
-  cursor = g.conn.execute("SELECT uid, mood, post_no  FROM Personal_mood WHERE uid IN (SELECT uid_followed FROM Follow WHERE uid_following = %s)", session['uid'])
+  cursor = g.conn.execute("SELECT uid, mood, post_no, dp.time, u.name FROM Personal_mood NATURAL JOIN Dep_posts dp NATURAL JOIN Users u WHERE uid IN (SELECT uid_followed FROM Follow WHERE uid_following = %s) order by dp.time desc", session['uid'])
   for result in cursor:
-    Posts.append((result["uid"],result["mood"], result["post_no"]))
+    Posts.append((result["uid"],result["mood"], result["post_no"], result["time"], result["name"]))
   cursor.close()
 
-  context = dict(name=User_name[0], mood=User_mood[0], active= User_active[0], posts=Posts)
+  Posts = Posts[:10]
+  
+  
+  posts_with_count = []
+  for post in Posts:
+    q = "select mood, COUNT(*) from responses_to_post r where r.uid_post={} AND r.post_no={} group by r.mood".format(post[0],post[2])
+    cursor = g.conn.execute(q)
+    mood_count=[]
+    for result in cursor:
+      mood_count.append((result['mood'], result['count']))
+    posts_with_count.append((*post, mood_count))
+    cursor.close()
+
+  context = dict(name=User_name[0], mood=User_mood[0], active= User_active[0], posts=posts_with_count)
 
   return render_template("mainpage.html", **context)
+
+
+
+# post.html ---------------------------------------------------------------------------------------------------------
+@app.route('/post/<uid>/<post_no>', methods=['GET'])
+def to_post(uid, post_no):
+
+
+  cursor = g.conn.execute("SELECT pm.uid, pm.mood, pm.post_no, dp.time, u.name FROM Personal_mood pm NATURAL JOIN Dep_posts dp NATURAL JOIN Users u WHERE pm.uid = {} AND pm.post_no = {}".format(uid, post_no))
+  for result in cursor:
+    Parent_Post = (result["uid"],result["mood"], result['post_no'], result["time"], result["name"])
+  cursor.close()
+
+
+  Comments = []
+  cursor = g.conn.execute("SELECT * FROM Dep_comments dc JOIN Users u ON dc.uid_comment = u.uid WHERE uid_post = %s AND post_no = %s order by dc.time desc", (uid, post_no))
+  for result in cursor:
+    Comments.append((result["uid_comment"],result["comment_no"], result['time'], result["text"], result["name"]))
+  cursor.close()
+  # context = dict(uid=uid, post_no=post_no, comments=Comments, pp_uid=Parent_Post[0], pp_mood=Parent_Post[1], pp_post_no=Parent_Post[2], pp_time=Parent_Post[3], pp_name=Parent_Post[4])
+
+  Comments_with_count = []
+  for comment in Comments:
+    q = "select mood, COUNT(*) from Responses_to_comment r where r.uid_comment={} AND r.comment_no={} group by r.mood".format(comment[0],comment[1])
+    cursor = g.conn.execute(q)
+    mood_count=[]
+    for result in cursor:
+      mood_count.append((result['mood'], result['count']))
+    Comments_with_count.append((*comment, mood_count))
+    cursor.close()
+
+  context = dict(uid=uid, post_no=post_no, comments=Comments_with_count, pp_uid=Parent_Post[0], pp_mood=Parent_Post[1], pp_post_no=Parent_Post[2], pp_time=Parent_Post[3], pp_name=Parent_Post[4])
+
+
+
+  return render_template("post.html", **context)
+
+# create comment to post
+@app.route('/comment_under_posts/<uid>/<post_no>', methods=['POST'])
+def comment_to_post(uid, post_no):
+  text = request.form['text']
+  q = "INSERT INTO Dep_comments VALUES (DEFAULT,{},{},{},'{}','{}')".format(session['uid'], uid, post_no, text, str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')))
+  g.conn.execute(q)
+  
+  return redirect('/post/{}/{}'.format(uid,post_no))
+
+# reponse to post
+@app.route('/response_to_post/<uid>/<post_no>', methods=['POST'])
+def response_to_post(uid, post_no):
+  mood_selected = request.form['mood_selected']
+  q = "SELECT * FROM Responses_to_post WHERE uid_post = {} AND post_no = {} AND uid_like = {}".format(uid, post_no, session['uid'])
+  cursor = g.conn.execute(q)
+  mood = []
+  for result in cursor:
+    mood.append(result['mood'])
+  cursor.close()
+  if mood:
+    q = "UPDATE Responses_to_post SET mood = {}, time='{}' WHERE uid_post={} AND post_no={} AND uid_like={}".format(int(mood_selected),str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')), uid, post_no, session['uid'] )
+    g.conn.execute(q)
+    
+  
+  else:
+    q = "INSERT INTO Responses_to_post VALUES ({},{},{}, {}, '{}')".format(uid, post_no, session['uid'], int(mood_selected), str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')))
+    g.conn.execute(q)
+  
+  return redirect(request.referrer)
+
+# comment.html ---------------------------------------------------------------------------------------------------------
+@app.route('/comment/<uid_comment>/<comment_no>', methods=['Get'])
+def to_comment(uid_comment, comment_no):
+
+  cursor = g.conn.execute("SELECT dc.text, dc.time, u.name FROM Dep_comments dc JOIN Users u ON u.uid = dc.uid_comment WHERE dc.uid_comment = {} AND dc.comment_no = {} order by dc.time desc".format(uid_comment, comment_no))
+  for result in cursor:
+    Parent_comment = (result["text"],result["time"], result['name'])
+  cursor.close()
+
+
+  Comments = [] 
+  q = """ SELECT dc.text, dc.time, dc.uid_comment, dc.comment_no, u.name
+          FROM Dep_comments dc JOIN Users u ON u.uid = dc.uid_comment,
+          comments_to_comments cc
+          WHERE cc.uid1 = {} AND cc.comments_no1 = {} AND dc.uid_comment = cc.uid2 AND dc.comment_no = cc.comments_no2""".format(uid_comment, comment_no)
+  cursor = g.conn.execute(q)
+  for result in cursor:
+    Comments.append((result["uid_comment"],result["comment_no"], result["time"], result["text"], result["name"]))
+  cursor.close()
+
+  
+  Comments_with_count = []
+  for comment in Comments:
+    q = "select mood, COUNT(*) from Responses_to_comment r where r.uid_comment={} AND r.comment_no={} group by r.mood".format(comment[0],comment[1])
+    cursor = g.conn.execute(q)
+    mood_count=[]
+    for result in cursor:
+      mood_count.append((result['mood'], result['count']))
+    Comments_with_count.append((*comment, mood_count))
+    cursor.close()
+
+  context = dict(parent_uid_comment=uid_comment, parent_comment_no=comment_no, comments=Comments_with_count, pc_text=Parent_comment[0], pc_time=Parent_comment[1], pc_name=Parent_comment[2])
+
+  return render_template("comment.html", **context)
+
+# create comment to commend
+@app.route('/comment_under_comment/<uid_comment>/<comment_no>', methods=['POST'])
+def comment_to_comment_(uid_comment, comment_no):
+  text = request.form['text']
+  q = "INSERT INTO Dep_comments VALUES (DEFAULT, {} , NULL, NULL,'{}','{}')".format(session['uid'], text, str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')))
+  g.conn.execute(q)
+
+  cursor = g.conn.execute('select last_value from dep_comments_comment_no_seq')
+  for result in cursor:
+    comments_no2 = result['last_value']
+  cursor.close()
+  
+  q = "INSERT INTO comments_to_comments VALUES ({}, {}, {}, {})".format(uid_comment, session['uid'], comment_no, comments_no2)
+  g.conn.execute(q)
+  
+  return redirect('/comment/{}/{}'.format(uid_comment,comment_no))
+
+# reponse to comment
+@app.route('/response_to_comment/<uid_comment>/<comment_no>', methods=['POST'])
+def response_to_comment(uid_comment, comment_no):
+  mood_selected = request.form['mood_selected']
+  q = "SELECT * FROM Responses_to_comment WHERE uid_comment = {} AND comment_no = {} AND uid_like = {}".format(uid_comment, comment_no, session['uid'])
+  cursor = g.conn.execute(q)
+  mood = []
+  for result in cursor:
+    mood.append(result['mood'])
+  cursor.close()
+  if mood:
+    q = "UPDATE Responses_to_comment SET mood = {}, time='{}' WHERE uid_comment={} AND comment_no={} AND uid_like={}".format(int(mood_selected),str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')), uid_comment, comment_no, session['uid'] )
+    g.conn.execute(q)
+    
+  
+  else:
+    q = "INSERT INTO Responses_to_comment VALUES ({},{},{}, {}, '{}')".format(uid_comment, comment_no, session['uid'], int(mood_selected), str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')))
+    g.conn.execute(q)
+  
+  return redirect(request.referrer)
 
  
 
@@ -484,17 +636,6 @@ def create_new_group():
 
   return redirect('/glist_page')
 
-
-@app.route('/post/<uid>/<post_no>', methods=['GET'])
-def to_post(uid, post_no):
-  Posts = []
-  cursor = g.conn.execute("SELECT * FROM Dep_comments WHERE uid_post = %s AND post_no = %s", (uid, post_no))
-  for result in cursor:
-    Posts.append((result["uid_comment"],result["comment_no"], result["uid_comment"], result["text"]))
-  cursor.close()
-  context = dict(posts=Posts)
-
-  return render_template("post.html", **context)
 
 #main page to other pages functions 
 @app.route('/see_profile', methods=['GET'])

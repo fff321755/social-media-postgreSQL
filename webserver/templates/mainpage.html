@@ -110,15 +110,19 @@
                 <button type="submit", class="left-button">See Posts</button>
             </form>
         
-        {% for uid, mood, post_no  in posts %}
+        {% for uid, mood, post_no, time, name, mood_counts in posts %}
         </div class = 'float'>
-            <p>Posted by {{uid}}</p>
+            <p>Posted by {{name}} ({{uid}})</p>
             <p>Mood at the moment : {{mood}}</p>
+            <p>{{time}}</p>
+            {% for r_mood, count in mood_counts %}
+                <p>responses_mood : {{r_mood}}, {{count}}</p>
+            {% endfor %}
             <form action="/post/{{uid}}/{{post_no}}" method='get'>
                 <button >details & comment</button>
             </form>
-            <select>
-                <option>mood</option>
+            <form action="/response_to_post/{{uid}}/{{post_no}}" method='post'>
+            <select name="mood_selected">
                 <option>1</option>
                 <option>2</option>
                 <option>3</option>
@@ -126,12 +130,15 @@
                 <option>5</option>
                 <option>6</option>
             </select>
-            <form action="/" method='get'>
                 <button >express</button>
             </form>
+
             <form action="/to_user_profile/{{uid}}" method='post'>
                 <button >profile</button>
             </form>
+            <br>
+            <br>
+            <br>
         </div>
         {% endfor %}
       
