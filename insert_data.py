@@ -37,7 +37,7 @@ def df2SQL(df, table_name, mode='a'):
 
 def Users():
     random.seed(0)
-    df = pd.DataFrame(columns=['uid', 'name', 'present_mood', 'email', 'is_active'])
+    df = pd.DataFrame(columns=['uid', 'name', 'present_mood', 'email', 'password', 'is_active'])
     
     name = ["Kelly", "Alex", "Cody", "Kim", "Halsey", "James", "Steve", "Kevin", "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis"]
     name = [ n1+' '+n2 for n1 in name for n2 in name if n1!=n2]
@@ -48,7 +48,7 @@ def Users():
 
     for i in range(0,25):
         uni = name[i].split()[0][0].lower() + name[i].split()[1][0].lower() + str(uni_number[i])
-        df.loc[len(df.index)] = [str(i+1).zfill(10), name[i], random.randint(1, 5), uni+"@columbia.edu", random.choice(['true', 'false'])]
+        df.loc[len(df.index)] = [i, name[i], random.randint(1, 5), uni+"@columbia.edu", '1234' , random.choice(['true', 'false'])]
 
 
     return df
@@ -62,7 +62,7 @@ def Groups():
     random.shuffle(name)
     
     for i in range(0,15):
-        df.loc[len(df.index)] = [str(i+1).zfill(10), random.randint(1, 5), name[i]]
+        df.loc[len(df.index)] = [i, random.randint(1, 5), name[i]]
 
     return df
 
