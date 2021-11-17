@@ -8,6 +8,11 @@
 
 
 <body>
+
+  <form action="/home" method='get'>
+    <button type="submit", class="left-button">Go to Home</button>
+  </form>
+  
   <h1>Recent Posts</h1>
 
   <div>
@@ -15,7 +20,7 @@
     <div>Posted by : {{uid}}</div>
     <div>sted when : {{time}}</div>
     <div>Mood : {{mood}}</div>
-    <form action=/to_user_profile/{{uid}} method='post'>
+    <form action=/to_user_profile2/{{uid}} method='post'>
       <button type='submit'>See Profile</button>
     </form>
     {% endfor %}

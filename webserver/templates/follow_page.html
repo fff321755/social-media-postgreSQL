@@ -17,7 +17,13 @@
 
 
 <body>
+
   <h1>You are following...</h1>
+
+  <form action="/home" method='get'>
+    <button type="submit", class="left-button">Go to Home</button>
+  </form>
+  
   <div>
     {% for user, uid, active in following %}
     <div>{{user}} : {{active}}</div>

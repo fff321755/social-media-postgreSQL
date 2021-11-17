@@ -353,8 +353,8 @@ def post_page():
   Personal_post = []
   cursor = g.conn.execute("""SELECT D.uid, P.mood, D.post_no, D.time FROM Personal_mood P, Dep_posts D
                              WHERE P.uid = D.uid AND P.post_no = D.post_no AND 
-                             D.uid IN (SELECT uid_followed FROM Follow 
-                             WHERE uid_following != %s)""", session['uid'])
+                             D.uid NOT IN (SELECT DISTINCT uid_followed FROM Follow
+                             WHERE uid_following = %s OR uid_followed = %s)""", (session['uid'],session['uid']))
   for result in cursor:
     Personal_post.append((result['uid'],result['mood'],result['post_no'],result['time']))
   cursor.close()
@@ -363,8 +363,8 @@ def post_page():
   cursor = g.conn.execute("""SELECT D.time, G.text, G.image_url, G.group_id
                               FROM Dep_posts D, Group_posts G
                               WHERE D.uid = G.uid AND D.post_no=G.post_no AND
-                              G.group_id IN (SELECT group_id FROM User_in_group
-                              WHERE uid != %s) """, session['uid'])
+                              G.group_id NOT IN (SELECT group_id FROM User_in_group
+                              WHERE uid = %s) """, session['uid'])
                              ## possibly ordered by time?
   for result in cursor:
     Group_post.append((result['time'],result['text'],result['image_url'],result['group_id']))
@@ -392,7 +392,7 @@ def to_user_profile(user_id):
   cursor = g.conn.execute("""SELECT * FROM Users WHERE uid = %s""", user_id)
   
   for result in cursor:
-    User_profile.append((result["name"], result["email"], result["present_mood"]))
+    User_profile.append((result["name"], result["email"], result["present_mood"],result['uid']))
   cursor.close()
   Posts = []
   cursor =g.conn.execute("""SELECT D.time, M.longitude, M.latitude, M.mood 
@@ -405,6 +405,27 @@ def to_user_profile(user_id):
   context = dict(profile=User_profile, posts=Posts)
 
   return render_template('user_profile_page.html', **context)
+
+@app.route('/to_user_profile2/<user_id>', methods=['POST'])
+def to_user_profile2(user_id):
+    
+  User_profile = []
+  cursor = g.conn.execute("""SELECT * FROM Users WHERE uid = %s""", user_id)
+  
+  for result in cursor:
+    User_profile.append((result["name"], result["email"], result["present_mood"],result['uid']))
+  cursor.close()
+  Posts = []
+  cursor =g.conn.execute("""SELECT D.time, M.longitude, M.latitude, M.mood 
+                          FROM Dep_posts D, Personal_mood M WHERE D.uid = %s AND 
+                          D.uid=M.uid AND D.post_no=M.post_no""", user_id)
+  for result in cursor:
+    Posts.append((result["time"],result["longitude"],result["latitude"],result["mood"]))
+  cursor.close()
+
+  context = dict(profile=User_profile, posts=Posts)
+
+  return render_template('user_profile_page2.html', **context) 
 
 # Example of adding new data to the database
 @app.route('/add', methods=['POST'])
@@ -496,11 +517,25 @@ def posting():
 def see_posts():
   return redirect('/post_page')
 
+@app.route('/unfollow/<uid>', methods=['POST'])
+def unfollow(uid):
+  g.conn.execute("""DELETE FROM Follow where uid_following = {} AND
+                    uid_followed = {}""".format(session['uid'],uid))
 
+  return redirect('/follow_page')
 
+@app.route('/follow/<uid>', methods=['POST'])
+def follow(uid):
+  g.conn.execute("""INSERT INTO Follow VALUES
+                    ({},{})""".format(session['uid'], uid))
+
+  return redirect('/follow_page')
 # @app.route('/main')
 # def main():
   
+@app.route('/home', methods=['GET'])
+def home():
+  return redirect('/main')
 
 
 if __name__ == "__main__":

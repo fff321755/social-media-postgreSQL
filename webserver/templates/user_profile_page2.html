@@ -9,18 +9,20 @@
 
 <body>
   <h1>Profile</h1>
-  
-  <form action="/home" method='get'>
-    <button type="submit", class="left-button">Go to Home</button>
-  </form>
 
   <div>
-    {% for name, email, mood in profile %}
+    {% for name, email, mood, uid in profile %}
     <div>Name : {{name}}</div>
     <div>Email : {{email}}</div>
     <div>Mood : {{mood}}</div>
+    <br />
+    <form action="/follow/{{uid}}" method='post'>
+      <button type='submit'>follow</button>
+    </form>
     {% endfor %}
   </div>
+
+
 
   <br />
   <div>

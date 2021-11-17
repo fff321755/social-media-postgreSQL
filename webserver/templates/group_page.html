@@ -9,6 +9,11 @@
 
 <body>
   <h1>Group Page</h1>
+
+  <form action="/home" method='get'>
+    <button type="submit", class="left-button">Go to Home</button>
+  </form>
+
   <div>
     {% for name, type in group_info %}
     <div>Group Name : {{name}}</div>

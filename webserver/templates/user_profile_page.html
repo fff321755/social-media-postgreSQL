@@ -11,12 +11,18 @@
   <h1>Profile</h1>
 
   <div>
-    {% for name, email, mood in profile %}
+    {% for name, email, mood, uid in profile %}
     <div>Name : {{name}}</div>
     <div>Email : {{email}}</div>
     <div>Mood : {{mood}}</div>
+    <br />
+    <form action="/unfollow/{{uid}}" method='post'>
+      <button type='submit'>Unfollow</button>
+    </form>
     {% endfor %}
   </div>
+
+
 
   <br />
   <div>
