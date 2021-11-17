@@ -594,13 +594,13 @@ def create_post():
   latitude = request.form['latitude']
 
   g.conn.execute("""INSERT INTO Dep_posts VALUES 
-                    ((SELECT MAX(post_no) FROM Dep_posts WHERE uid=%s)+1,%s, %s)""",
-                    (session['uid'],str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')),
+                    (DEFAULT,%s, %s)""",
+                    (str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')),
                     session['uid']))
 
   g.conn.execute("""INSERT INTO Personal_mood VALUES
-                    (%s,%s,%s,(SELECT MAX(post_no) FROM Dep_posts WHERE uid=%s),%s)""",
-                    (longitude,latitude,session['uid'],session['uid'],mood))
+                    (%s,%s,%s,(SELECT last_value FROM Dep_posts_post_no_seq),%s)""",
+                    (longitude,latitude,session['uid'],mood))
 
   g.conn.execute("""UPDATE Users SET present_mood = {}
                     WHERE uid= {} """.format(mood, session['uid']))
