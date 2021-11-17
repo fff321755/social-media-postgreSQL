@@ -716,6 +716,11 @@ def follow(uid):
 def home():
   return redirect('/main')
 
+@app.route('/logout', methods=['POST'])
+def log_out():
+  #session['uid'] = "-1"
+  session.clear()
+  return redirect('/')
 
 if __name__ == "__main__":
   import click
