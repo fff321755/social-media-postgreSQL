@@ -63,6 +63,11 @@ def before_request():
   """
   try:
     g.conn = engine.connect()
+    # if 'uid' not in session and request.endpoint != 'index':
+    #   return redirect('/')
+    
+
+
   except:
     print("uh oh, problem connecting to database")
     import traceback; traceback.print_exc()
@@ -338,7 +343,7 @@ def response_to_post(uid, post_no):
   return redirect(request.referrer)
 
 # comment.html ---------------------------------------------------------------------------------------------------------
-@app.route('/comment/<uid_comment>/<comment_no>', methods=['Get'])
+@app.route('/comment/<uid_comment>/<comment_no>', methods=['GET'])
 def to_comment(uid_comment, comment_no):
 
   cursor = g.conn.execute("SELECT dc.text, dc.time, u.name FROM Dep_comments dc JOIN Users u ON u.uid = dc.uid_comment WHERE dc.uid_comment = {} AND dc.comment_no = {} order by dc.time desc".format(uid_comment, comment_no))
@@ -716,7 +721,7 @@ def follow(uid):
 def home():
   return redirect('/main')
 
-@app.route('/logout', methods=['POST'])
+@app.route('/logout', methods=['GET'])
 def log_out():
   #session['uid'] = "-1"
   session.clear()
