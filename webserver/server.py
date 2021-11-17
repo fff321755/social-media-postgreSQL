@@ -429,6 +429,9 @@ def create_post():
                     (%s,%s,%s,(SELECT MAX(post_no) FROM Dep_posts WHERE uid=%s),%s)""",
                     (longitude,latitude,session['uid'],session['uid'],mood))
 
+  g.conn.execute("""UPDATE Users SET present_mood = {}
+                    WHERE uid= {} """.format(mood, session['uid']))
+
   return redirect('/main')
 
 @app.route('/create_group_post/<group_id>', methods=['POST'])
