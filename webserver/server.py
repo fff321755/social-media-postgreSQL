@@ -411,7 +411,7 @@ def response_to_comment(uid_comment, comment_no):
   return redirect(request.referrer)
 
  
-
+# profile.html ---------------------------------------------------------------------------------------------------------
 #from main pages
 @app.route('/profile_page')
 def profile_page():
@@ -421,14 +421,25 @@ def profile_page():
     User_profile.append((result["name"], result["email"], result["present_mood"]))
   cursor.close()
   Posts = []
-  cursor =g.conn.execute("""SELECT D.time, M.longitude, M.latitude, M.mood 
+  cursor =g.conn.execute("""SELECT D.time, M.longitude, M.latitude, M.mood, D.uid, D.post_no
                           FROM Dep_posts D, Personal_mood M WHERE D.uid = %s AND 
-                          D.uid=M.uid AND D.post_no=M.post_no""", session['uid'])
+                          D.uid=M.uid AND D.post_no=M.post_no order by D.time desc""", session['uid'])
   for result in cursor:
-    Posts.append((result["time"],result["longitude"],result["latitude"],result["mood"]))
+    Posts.append((result["time"],result["longitude"],result["latitude"],result["mood"], result["uid"], result["post_no"]))
   cursor.close()
 
-  context = dict(profile=User_profile, posts=Posts)
+  Posts = Posts[:10]
+  posts_with_count = []
+  for post in Posts:
+    q = "select mood, COUNT(*) from responses_to_post r where r.uid_post={} AND r.post_no={} group by r.mood".format(post[4],post[5])
+    cursor = g.conn.execute(q)
+    mood_count=[]
+    for result in cursor:
+      mood_count.append((result['mood'], result['count']))
+    posts_with_count.append((*post, mood_count))
+    cursor.close()
+
+  context = dict(profile=User_profile, posts=posts_with_count)
 
   return render_template('profile_page.html', **context)
 
@@ -540,22 +551,49 @@ def sign_ing_page():
 @app.route('/to_user_profile/<user_id>', methods=['POST'])
 def to_user_profile(user_id):
     
+  # User_profile = []
+  # cursor = g.conn.execute("""SELECT * FROM Users WHERE uid = %s""", user_id)
+  
+  # for result in cursor:
+  #   User_profile.append((result["name"], result["email"], result["present_mood"],result['uid']))
+  # cursor.close()
+  # Posts = []
+  # cursor =g.conn.execute("""SELECT D.time, M.longitude, M.latitude, M.mood 
+  #                         FROM Dep_posts D, Personal_mood M WHERE D.uid = %s AND 
+  #                         D.uid=M.uid AND D.post_no=M.post_no""", user_id)
+  # for result in cursor:
+  #   Posts.append((result["time"],result["longitude"],result["latitude"],result["mood"]))
+  # cursor.close()
+
+  # context = dict(profile=User_profile, posts=Posts)
+
+  # return render_template('user_profile_page.html', **context)
+
   User_profile = []
   cursor = g.conn.execute("""SELECT * FROM Users WHERE uid = %s""", user_id)
-  
   for result in cursor:
-    User_profile.append((result["name"], result["email"], result["present_mood"],result['uid']))
+    User_profile.append((result["name"], result["email"], result["present_mood"], result['uid']))
   cursor.close()
   Posts = []
-  cursor =g.conn.execute("""SELECT D.time, M.longitude, M.latitude, M.mood 
+  cursor =g.conn.execute("""SELECT D.time, M.longitude, M.latitude, M.mood, D.uid, D.post_no
                           FROM Dep_posts D, Personal_mood M WHERE D.uid = %s AND 
-                          D.uid=M.uid AND D.post_no=M.post_no""", user_id)
+                          D.uid=M.uid AND D.post_no=M.post_no order by D.time desc""", user_id)
   for result in cursor:
-    Posts.append((result["time"],result["longitude"],result["latitude"],result["mood"]))
+    Posts.append((result["time"],result["longitude"],result["latitude"],result["mood"], result["uid"], result["post_no"]))
   cursor.close()
 
-  context = dict(profile=User_profile, posts=Posts)
+  Posts = Posts[:10]
+  posts_with_count = []
+  for post in Posts:
+    q = "select mood, COUNT(*) from responses_to_post r where r.uid_post={} AND r.post_no={} group by r.mood".format(post[4],post[5])
+    cursor = g.conn.execute(q)
+    mood_count=[]
+    for result in cursor:
+      mood_count.append((result['mood'], result['count']))
+    posts_with_count.append((*post, mood_count))
+    cursor.close()
 
+  context = dict(profile=User_profile, posts=posts_with_count)
   return render_template('user_profile_page.html', **context)
 
 @app.route('/to_user_profile2/<user_id>', methods=['POST'])

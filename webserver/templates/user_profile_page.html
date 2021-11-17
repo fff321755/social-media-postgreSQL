@@ -24,17 +24,36 @@
 
 
 
-  <br />
-  <div>
-    {% for time, longitude, latitude, mood in posts %}
-    <br />
-    <div>Posted at  ({{longitude}},{{latitude}})  when {{time}}</div>
-    <div>Mood at the moment : {{mood}}</div>
-    <form action="/" method='get'>
-      <button >comment</button>
-    </form>
+  {% for time, longitude, latitude, mood, uid, post_no, mood_counts in posts %}
+</div class = 'float'>
+    <p>Mood at the moment : {{mood}}</p>
+    <p>{{time}}</p>
+    {% for r_mood, count in mood_counts %}
+        <p>responses_mood : {{r_mood}}, {{count}}</p>
     {% endfor %}
-  </div>
+    <form action="/post/{{uid}}/{{post_no}}" method='get'>
+        <button >details & comment</button>
+    </form>
+    <form action="/response_to_post/{{uid}}/{{post_no}}" method='post'>
+    <select name="mood_selected">
+        <option>1</option>
+        <option>2</option>
+        <option>3</option>
+        <option>4</option>
+        <option>5</option>
+        <option>6</option>
+    </select>
+        <button >express</button>
+    </form>
+
+    <form action="/to_user_profile/{{uid}}" method='post'>
+        <button >profile</button>
+    </form>
+    <br>
+    <br>
+    <br>
+</div>
+{% endfor %}
 
 <!-- <p><a href="follow_page">Go to the other page</a></p>
 
