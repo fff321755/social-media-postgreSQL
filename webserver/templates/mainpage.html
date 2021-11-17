@@ -110,10 +110,11 @@
                 <button type="submit", class="left-button">See Posts</button>
             </form>
         
-        {% for uid, mood, post_no, mood_counts in posts %}
+        {% for uid, mood, post_no, time, name, mood_counts in posts %}
         </div class = 'float'>
-            <p>Posted by {{uid}}</p>
+            <p>Posted by {{name}} ({{uid}})</p>
             <p>Mood at the moment : {{mood}}</p>
+            <p>{{time}}</p>
             {% for r_mood, count in mood_counts %}
                 <p>responses_mood : {{r_mood}}, {{count}}</p>
             {% endfor %}

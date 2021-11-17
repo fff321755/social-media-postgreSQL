@@ -249,12 +249,10 @@ def main():
 
   #post from following users
   Posts = []
-  cursor = g.conn.execute("SELECT uid, mood, post_no, dp.time, u.name FROM Personal_mood NATURAL JOIN Dep_posts dp NATURAL JOIN Users u WHERE uid IN (SELECT uid_followed FROM Follow WHERE uid_following = %s)", session['uid'])
+  cursor = g.conn.execute("SELECT uid, mood, post_no  FROM Personal_mood WHERE uid IN (SELECT uid_followed FROM Follow WHERE uid_following = %s)", session['uid'])
   for result in cursor:
-    Posts.append((result["uid"],result["mood"], result["post_no"], result["time"], result["name"]))
+    Posts.append((result["uid"],result["mood"], result["post_no"]))
   cursor.close()
-
-  Posts = Posts[:10]
   
   
   posts_with_count = []
@@ -264,7 +262,7 @@ def main():
     mood_count=[]
     for result in cursor:
       mood_count.append((result['mood'], result['count']))
-    posts_with_count.append((post[0], post[1], post[2], post[3], post[4], mood_count))
+    posts_with_count.append((post[0], post[1], post[2], mood_count))
     cursor.close()
 
   context = dict(name=User_name[0], mood=User_mood[0], active= User_active[0], posts=posts_with_count)
@@ -276,71 +274,23 @@ def main():
 # post.html ---------------------------------------------------------------------------------------------------------
 @app.route('/post/<uid>/<post_no>', methods=['GET'])
 def to_post(uid, post_no):
-
-
-  cursor = g.conn.execute("SELECT pm.uid, pm.mood, pm.post_no, dp.time, u.name FROM Personal_mood pm NATURAL JOIN Dep_posts dp NATURAL JOIN Users u WHERE pm.uid = {} AND pm.post_no = {}".format(uid, post_no))
+  Posts = []
+  cursor = g.conn.execute("SELECT * FROM Dep_comments WHERE uid_post = %s AND post_no = %s", (uid, post_no))
   for result in cursor:
-    Parent_Post = (result["uid"],result["mood"], result['post_no'], result["time"], result["name"])
+    Posts.append((result["uid_comment"],result["comment_no"], result["uid_comment"], result["text"]))
   cursor.close()
-
-
-  Comments = []
-  cursor = g.conn.execute("SELECT * FROM Dep_comments dp JOIN Users u ON dp.uid_comment = u.uid WHERE uid_post = %s AND post_no = %s", (uid, post_no))
-  for result in cursor:
-    Comments.append((result["uid_comment"],result["comment_no"], result['time'], result["text"], result["name"]))
-  cursor.close()
-  context = dict(uid=uid, post_no=post_no, comments=Comments, pp_uid=Parent_Post[0], pp_mood=Parent_Post[1], pp_post_no=Parent_Post[2], pp_time=Parent_Post[3], pp_name=Parent_Post[4])
+  context = dict(uid=uid, post_no=post_no, posts=Posts)
 
   return render_template("post.html", **context)
 
-# create comment to post
 @app.route('/comment_under_posts/<uid>/<post_no>', methods=['POST'])
 def comment_to_post(uid, post_no):
   text = request.form['text']
   q = "INSERT INTO Dep_comments VALUES (DEFAULT,{},{},{},'{}','{}')".format(session['uid'], uid, post_no, text, str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')))
   g.conn.execute(q)
   
-  return redirect('/post/{}/{}'.format(uid,post_no))
+  redirect('/post/{}/{}'.format(uid,post_no))
 
-
-# comment.html ---------------------------------------------------------------------------------------------------------
-@app.route('/comment/<uid_comment>/<comment_no>', methods=['Get'])
-def to_comment(uid_comment, comment_no):
-
-  cursor = g.conn.execute("SELECT dc.text, dc.time, u.name FROM Dep_comments dc JOIN Users u ON u.uid = dc.uid_comment WHERE dc.uid_comment = {} AND dc.comment_no = {}".format(uid_comment, comment_no))
-  for result in cursor:
-    Parent_comment = (result["text"],result["time"], result['name'])
-  cursor.close()
-
-
-  Comments = [] 
-  q = """ SELECT dc.text, dc.time, dc.uid_comment, dc.comment_no
-          FROM Dep_comments dc, comments_to_comments cc
-          WHERE cc.uid1 = {} AND cc.comments_no1 = {} AND dc.uid_comment = cc.uid2 AND dc.comment_no = cc.comments_no2""".format(uid_comment, comment_no)
-  cursor = g.conn.execute(q)
-  for result in cursor:
-    Comments.append((result["uid_comment"],result["comment_no"], result["time"], result["text"]))
-  cursor.close()
-  context = dict(parent_uid_comment=uid_comment, parent_comment_no=comment_no, comments=Comments, pc_text=Parent_comment[0], pc_time=Parent_comment[1], pc_name=Parent_comment[2])
-
-  return render_template("comment.html", **context)
-
-# create comment to commend
-@app.route('/comment_under_comment/<uid_comment>/<comment_no>', methods=['POST'])
-def comment_to_comment_(uid_comment, comment_no):
-  text = request.form['text']
-  q = "INSERT INTO Dep_comments VALUES (DEFAULT, {} , NULL, NULL,'{}','{}')".format(session['uid'], text, str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')))
-  g.conn.execute(q)
-
-  cursor = g.conn.execute('select last_value from dep_comments_comment_no_seq')
-  for result in cursor:
-    comments_no2 = result['last_value']
-  cursor.close()
-  
-  q = "INSERT INTO comments_to_comments VALUES ({}, {}, {}, {})".format(uid_comment, session['uid'], comment_no, comments_no2)
-  g.conn.execute(q)
-  
-  return redirect('/comment/{}/{}'.format(uid_comment,comment_no))
 
 
  
@@ -377,10 +327,6 @@ def glist_page():
   context = dict(group_list = group_list)
 
   return render_template('glist_page.html', **context)
-
-@app.route('/creating_group_page', methods=['GET'])
-def create_group():
-  return render_template("creating_group_page.html")
 
 #from group list page
 @app.route('/group_page/<group_id>', methods=['GET'])
@@ -438,33 +384,26 @@ def post_page():
   Personal_post = []
   cursor = g.conn.execute("""SELECT D.uid, P.mood, D.post_no, D.time FROM Personal_mood P, Dep_posts D
                              WHERE P.uid = D.uid AND P.post_no = D.post_no AND 
-                             D.uid NOT IN (SELECT DISTINCT uid_followed FROM Follow
-                             WHERE uid_following = %s OR uid_followed = %s)""", (session['uid'],session['uid']))
+                             D.uid IN (SELECT uid_followed FROM Follow 
+                             WHERE uid_following != %s)""", session['uid'])
   for result in cursor:
     Personal_post.append((result['uid'],result['mood'],result['post_no'],result['time']))
   cursor.close()
   
   Group_post = []
-  cursor = g.conn.execute("""SELECT D.time, G.text, G.image_url, G.group_id
+  cursor = g.conn.execute("""SELECT D.time, G.text, G.image_url
                               FROM Dep_posts D, Group_posts G
                               WHERE D.uid = G.uid AND D.post_no=G.post_no AND
-                              G.group_id NOT IN (SELECT group_id FROM User_in_group
-                              WHERE uid = %s) """, session['uid'])
+                              G.group_id IN (SELECT group_id FROM User_in_group
+                              WHERE uid != %s) """, session['uid'])
                              ## possibly ordered by time?
   for result in cursor:
-    Group_post.append((result['time'],result['text'],result['image_url'],result['group_id']))
+    Group_post.append((result['time'],result['text'],result['image_url']))
   cursor.close()
 
   context = dict(personal_post=Personal_post, group_post=Group_post)
 
   return render_template('post_page.html', **context)
-
-@app.route('/join_group/<group_id>', methods=['POST'])
-def join_group(group_id):
-  g.conn.execute("""INSERT INTO User_in_group VALUES 
-                    (%s,%s,1)""", session['uid'], group_id)
-
-  return redirect('/group_page/'+group_id)
 
 @app.route('/sign_in_page')
 def sign_ing_page():
@@ -477,7 +416,7 @@ def to_user_profile(user_id):
   cursor = g.conn.execute("""SELECT * FROM Users WHERE uid = %s""", user_id)
   
   for result in cursor:
-    User_profile.append((result["name"], result["email"], result["present_mood"],result['uid']))
+    User_profile.append((result["name"], result["email"], result["present_mood"]))
   cursor.close()
   Posts = []
   cursor =g.conn.execute("""SELECT D.time, M.longitude, M.latitude, M.mood 
@@ -490,27 +429,6 @@ def to_user_profile(user_id):
   context = dict(profile=User_profile, posts=Posts)
 
   return render_template('user_profile_page.html', **context)
-
-@app.route('/to_user_profile2/<user_id>', methods=['POST'])
-def to_user_profile2(user_id):
-    
-  User_profile = []
-  cursor = g.conn.execute("""SELECT * FROM Users WHERE uid = %s""", user_id)
-  
-  for result in cursor:
-    User_profile.append((result["name"], result["email"], result["present_mood"],result['uid']))
-  cursor.close()
-  Posts = []
-  cursor =g.conn.execute("""SELECT D.time, M.longitude, M.latitude, M.mood 
-                          FROM Dep_posts D, Personal_mood M WHERE D.uid = %s AND 
-                          D.uid=M.uid AND D.post_no=M.post_no""", user_id)
-  for result in cursor:
-    Posts.append((result["time"],result["longitude"],result["latitude"],result["mood"]))
-  cursor.close()
-
-  context = dict(profile=User_profile, posts=Posts)
-
-  return render_template('user_profile_page2.html', **context) 
 
 # Example of adding new data to the database
 @app.route('/add', methods=['POST'])
@@ -535,9 +453,6 @@ def create_post():
                     (%s,%s,%s,(SELECT MAX(post_no) FROM Dep_posts WHERE uid=%s),%s)""",
                     (longitude,latitude,session['uid'],session['uid'],mood))
 
-  g.conn.execute("""UPDATE Users SET present_mood = {}
-                    WHERE uid= {} """.format(mood, session['uid']))
-
   return redirect('/main')
 
 @app.route('/create_group_post/<group_id>', methods=['POST'])
@@ -555,19 +470,6 @@ def create_group_post(group_id):
                     (session['uid'],group_id,session['uid'],text,image))
 
   return redirect('/group_page/'+group_id)
-
-@app.route('/create_new_group', methods=['POST'])
-def create_new_group():
-  group_name = request.form['group_name']
-  mood = request.form['mood']
-
-  g.conn.execute("""INSERT INTO Groups VALUES 
-                    (DEFAULT, {}, '{}')""".format(mood, group_name))
-
-  g.conn.execute("""INSERT INTO User_in_group VALUES
-                    ({},(SELECT last_value FROM Groups_group_id_seq),5)""".format(session['uid']))
-
-  return redirect('/glist_page')
 
 
 #main page to other pages functions 
@@ -591,25 +493,11 @@ def posting():
 def see_posts():
   return redirect('/post_page')
 
-@app.route('/unfollow/<uid>', methods=['POST'])
-def unfollow(uid):
-  g.conn.execute("""DELETE FROM Follow where uid_following = {} AND
-                    uid_followed = {}""".format(session['uid'],uid))
 
-  return redirect('/follow_page')
 
-@app.route('/follow/<uid>', methods=['POST'])
-def follow(uid):
-  g.conn.execute("""INSERT INTO Follow VALUES
-                    ({},{})""".format(session['uid'], uid))
-
-  return redirect('/follow_page')
 # @app.route('/main')
 # def main():
   
-@app.route('/home', methods=['GET'])
-def home():
-  return redirect('/main')
 
 
 if __name__ == "__main__":

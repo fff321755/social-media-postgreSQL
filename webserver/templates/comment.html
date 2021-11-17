@@ -8,15 +8,14 @@
 
 
 <body>
+
     </div>
-    <p>Post by {{pp_name}} ({{pp_uid}})</p>
-    <p>Mood {{pp_mood}}</p>
-    <p>Post NO {{pp_post_no}}</p>
-    <p>{{pp_time}}</p>
+        <p>Post by {{pc_name}}</p>
+        <p>Mood {{pc_text}}</p>
+        <p>{{pc_time}}</p>
     </div>
 
-
-    <form action="/comment_under_posts/{{uid}}/{{post_no}}" method='post'>
+    <form action="/comment_under_comment/{{parent_uid_comment}}/{{parent_comment_no}}" method='post'>
         <textarea name="text"
         rows="6"
         cols="40"
@@ -28,9 +27,9 @@
 
 
 
-    {% for uid_comment, comment_no, time, text, name in comments %}
+    {% for uid_comment, comment_no, time, text in comments %}
     </div>
-        <p>Posted by {{name}} ({{uid_comment}})</p>
+        <p>Posted by {{uid_comment}}</p>
         <p>{{text}}</p>
         <p>{{time}}</p>
         <form action="/comment/{{uid_comment}}/{{comment_no}}" method='get'>
