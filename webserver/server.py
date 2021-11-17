@@ -597,7 +597,7 @@ def create_post():
                     ((SELECT MAX(post_no) FROM Dep_posts WHERE uid=%s)+1,%s, %s)""",
                     (session['uid'],str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')),
                     session['uid']))
-  
+
   g.conn.execute("""INSERT INTO Personal_mood VALUES
                     (%s,%s,%s,(SELECT MAX(post_no) FROM Dep_posts WHERE uid=%s),%s)""",
                     (longitude,latitude,session['uid'],session['uid'],mood))
