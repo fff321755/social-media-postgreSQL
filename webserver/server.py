@@ -249,7 +249,7 @@ def main():
 
   #post from following users
   Posts = []
-  cursor = g.conn.execute("SELECT uid, mood, post_no, dp.time, u.name FROM Personal_mood NATURAL JOIN Dep_posts dp NATURAL JOIN Users u WHERE uid IN (SELECT uid_followed FROM Follow WHERE uid_following = %s)", session['uid'])
+  cursor = g.conn.execute("SELECT uid, mood, post_no, dp.time, u.name FROM Personal_mood NATURAL JOIN Dep_posts dp NATURAL JOIN Users u WHERE uid IN (SELECT uid_followed FROM Follow WHERE uid_following = %s) order by dp.time desc", session['uid'])
   for result in cursor:
     Posts.append((result["uid"],result["mood"], result["post_no"], result["time"], result["name"]))
   cursor.close()
@@ -285,7 +285,7 @@ def to_post(uid, post_no):
 
 
   Comments = []
-  cursor = g.conn.execute("SELECT * FROM Dep_comments dp JOIN Users u ON dp.uid_comment = u.uid WHERE uid_post = %s AND post_no = %s", (uid, post_no))
+  cursor = g.conn.execute("SELECT * FROM Dep_comments dc JOIN Users u ON dc.uid_comment = u.uid WHERE uid_post = %s AND post_no = %s order by dc.time desc", (uid, post_no))
   for result in cursor:
     Comments.append((result["uid_comment"],result["comment_no"], result['time'], result["text"], result["name"]))
   cursor.close()
@@ -341,7 +341,7 @@ def response_to_post(uid, post_no):
 @app.route('/comment/<uid_comment>/<comment_no>', methods=['Get'])
 def to_comment(uid_comment, comment_no):
 
-  cursor = g.conn.execute("SELECT dc.text, dc.time, u.name FROM Dep_comments dc JOIN Users u ON u.uid = dc.uid_comment WHERE dc.uid_comment = {} AND dc.comment_no = {}".format(uid_comment, comment_no))
+  cursor = g.conn.execute("SELECT dc.text, dc.time, u.name FROM Dep_comments dc JOIN Users u ON u.uid = dc.uid_comment WHERE dc.uid_comment = {} AND dc.comment_no = {} order by dc.time desc".format(uid_comment, comment_no))
   for result in cursor:
     Parent_comment = (result["text"],result["time"], result['name'])
   cursor.close()
