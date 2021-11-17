@@ -121,8 +121,8 @@
             <form action="/post/{{uid}}/{{post_no}}" method='get'>
                 <button >details & comment</button>
             </form>
-            <select>
-                <option>mood</option>
+            <form action="/response_to_post/{{uid}}/{{post_no}}" method='post'>
+            <select name="mood_selected">
                 <option>1</option>
                 <option>2</option>
                 <option>3</option>
@@ -130,9 +130,9 @@
                 <option>5</option>
                 <option>6</option>
             </select>
-            <form action="/" method='get'>
                 <button >express</button>
             </form>
+
             <form action="/to_user_profile/{{uid}}" method='post'>
                 <button >profile</button>
             </form>

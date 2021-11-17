@@ -27,27 +27,30 @@
 
 
 
-    {% for uid_comment, comment_no, time, text in comments %}
+    {% for uid_comment, comment_no, time, text, name, mood_counts in comments %}
     </div>
-        <p>Posted by {{uid_comment}}</p>
+        <p>Posted by {{name}} ({{uid_comment}})</p>
         <p>{{text}}</p>
         <p>{{time}}</p>
+        {% for r_mood, count in mood_counts %}
+        <p>responses_mood : {{r_mood}}, {{count}}</p>
+        {% endfor %}
         <form action="/comment/{{uid_comment}}/{{comment_no}}" method='get'>
             <button >details & comment</button>
         </form>
-        <select>
-            <option>mood</option>
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option>5</option>
-            <option>6</option>
-        </select>
-        <form action="/" method='get'>
-            <button >express</button>
-        </form>
-        <form action="/to_user_profile/{{uid_comment}}" method='get'>
+        <form action="/response_to_comment/{{uid_comment}}/{{comment_no}}" method='post'>
+            <select name="mood_selected">
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6</option>
+            </select>
+                <button >express</button>
+         </form>
+
+        <form action="/to_user_profile/{{uid_comment}}" method='post'>
             <button >profile</button>
         </form>
     </div>

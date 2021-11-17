@@ -99,4 +99,77 @@
 </body>
 
 
+    <style>
+        body {
+            font-size: 15pt;
+            font-family: arial;
+        }
+        button {
+            background-color: #04aa6d;
+            color: white;
+            padding: 10px 10px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 10%;
+        }
+    </style>
+
+    <body>
+        <form action="/create_personal_post" method="post">
+            <label for="mood"><b>mood</b></label>
+            <select>
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6</option>
+            </select>
+
+            <label for="longitude"><b>longitude</b></label>
+            <input
+                id="longitude_input"
+                type="text"
+                placeholder="Enter longitude of current location"
+                name="longitude"
+                required
+            />
+
+            <label for="latitude"><b>latitude</b></label>
+            <input
+                id="latitude_input"
+                type="text"
+                placeholder="Enter latitude of current location"
+                name="latitude"
+                required
+            />
+
+            <button type="submit">POST</button>
+        </form>
+
+        <button onclick="getLocation()">locate me</button>
+
+        <script>
+            var lo = document.getElementById("longitude_input");
+            var la = document.getElementById("latitude_input");
+
+            function getLocation() {
+                if (navigator.geolocation) {
+                    alert("wait a sec");
+                    navigator.geolocation.getCurrentPosition(showPosition);
+                } else {
+                    alert("not support");
+                    // x.innerHTML = "Geolocation is not supported by this browser.";
+                }
+            }
+
+            function showPosition(position) {
+                la.value = position.coords.latitude;
+                lo.value = position.coords.longitude;
+                //   x.innerHTML = "Latitude: " + position.coords.latitude +
+                //   "<br>Longitude: " + position.coords.longitude;
+            }
+        </script>
+    </body>
 </html>
