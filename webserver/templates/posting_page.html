@@ -32,12 +32,14 @@
 
     <div class="container">
         <label for="mood"><b>mood</b></label>
-        <input
-            type="text"
-            placeholder="Enter Your mood"
-            name="mood"
-            required
-        />
+        <select>
+          <option>1</option>
+          <option>2</option>
+          <option>3</option>
+          <option>4</option>
+          <option>5</option>
+          <option>6</option>
+      </select>
 
         <label for="longitude"><b>longitude</b></label>
         <input
@@ -67,6 +69,31 @@
         <span class="psw">Forgot <a href="#">password?</a></span>
     </div> -->
   </form>
+
+  
+  <p>Click the button to get your coordinates.</p>
+  <button onclick="getLocation()">Try It</button>
+  <p id="demo">dd</p>
+
+  <!-- <script>
+    var x = document.getElementById("demo");
+    
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition);
+        alert( 'getLication!' );
+
+      } else { 
+        x.innerHTML = "Geolocation is not supported by this browser.";
+        alert( 'not support!' );
+      }
+    }
+    
+    function showPosition(position) {
+      x.innerHTML = "Latitude: " + position.coords.latitude + 
+      "<br>Longitude: " + position.coords.longitude;
+    }
+    </script> -->
 
 
 </body>

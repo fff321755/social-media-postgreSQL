@@ -253,8 +253,19 @@ def main():
   for result in cursor:
     Posts.append((result["uid"],result["mood"], result["post_no"]))
   cursor.close()
+  
+  
+  posts_with_count = []
+  for post in Posts:
+    q = "select mood, COUNT(*) from responses_to_post r where r.uid_post={} AND r.post_no={} group by r.mood".format(post[0],post[2])
+    cursor = g.conn.execute(q)
+    mood_count=[]
+    for result in cursor:
+      mood_count.append((result['mood'], result['count']))
+    posts_with_count.append((post[0], post[1], post[2], mood_count))
+    cursor.close()
 
-  context = dict(name=User_name[0], mood=User_mood[0], active= User_active[0], posts=Posts)
+  context = dict(name=User_name[0], mood=User_mood[0], active= User_active[0], posts=posts_with_count)
 
   return render_template("mainpage.html", **context)
 
