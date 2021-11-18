@@ -612,10 +612,9 @@ def quit_gorup(group_id):
 
   g.conn.execute("""DELETE FROM User_in_group WHERE group_id = '{}' AND uid = '{}'""".format(group_id, session['uid']))
   
-  # g.conn.execute("""DELETE FROM Groups G WHERE G.group_id IN (SELECT Uig.group_id FROM User_in_group Uig
-  #                   GROUP BY Uig.group_id HAVING COUNT(*)<1)""")
+  g.conn.execute("""DELETE FROM Groups G WHERE G.group_id NOT IN (SELECT Uig.group_id FROM User_in_group Uig
+                    GROUP BY Uig.group_id)""")
 
-  g.conn.execute("""DELETE FROM Groups G h""")
 
   
   return redirect('/glist_page')
