@@ -19,7 +19,9 @@
 
 <body>
   <h1>Posting Group Post</h1>
-
+  <form action="/group_page/{{group_info}}" method='get'>
+    <button type="submit", class="left-button">Back to group</button>
+  </form>
 
   <form action="/create_group_post/{{group_info}}" method="post">
     <!-- <div class="imgcontainer">
@@ -28,18 +30,18 @@
 
     <div class="container">
         <label for="text"><b>text</b></label>
-        <input
-            type="text"
-            placeholder="Caption"
-            name="text"
-            required
-        />
+        <textarea name="text"
+        rows="6"
+        cols="40"
+        maxlength="180"
+        required></textarea>
 
         <label for="image"><b>image</b></label>
         <input
             type="text"
             placeholder="Image url"
             name="image"
+            maxlength="90"
             required
         />
 

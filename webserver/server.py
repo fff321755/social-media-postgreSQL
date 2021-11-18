@@ -15,6 +15,7 @@ from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response, session
 from flask_session import Session
 from datetime import datetime, timezone
+import re
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -74,7 +75,9 @@ def before_request():
     g.conn = None
 
   #Check Login
-  if not session.get('uid') and request.endpoint != 'login' and request.endpoint != 'index':
+  print(request.endpoint)
+  if not session.get('uid') and request.endpoint != 'login' and request.endpoint != 'index' and request.endpoint != 'sign_in' and request.endpoint != 'sign_ing_page' and request.endpoint != 'creat_account':
+    print("plase login")
     return redirect("/")
 
 @app.teardown_request
@@ -232,12 +235,25 @@ def creat_account():
   name = request.form['name']
   email = request.form['email']
   password = request.form['password']
-  g.conn.execute("INSERT INTO Users VALUES (DEFAULT,'{}',NULL,'{}','{}', False)".format(name,email,password)) 
+  try:
+    g.conn.execute("INSERT INTO Users VALUES (DEFAULT,'{}',NULL,'{}','{}', False)".format(name,email,password))
+    return redirect('/')
+  except:
+    print("Fail to create account")
+    return redirect(request.referrer)
+    
 
-  #if failed
-  # TODO
 
-  return redirect('/')
+  
+def delete_redudant_dep_post():
+  
+  q = """ DELETE FROM Dep_posts dp
+          WHERE (dp.post_no, dp.uid) NOT in (SELECT pm.post_no, pm.uid FROM Personal_mood pm)
+          AND (dp.post_no, dp.uid) NOT in (SELECT gp.post_no, gp.uid FROM Group_posts gp)
+      """
+  g.conn.execute(q)
+  return
+  
 
 # mainpage.html ---------------------------------------------------------------------------------------------------------
 @app.route('/main')
@@ -355,6 +371,9 @@ def post2(uid, post_no):
 @app.route('/comment_under_posts/<uid>/<post_no>', methods=['POST'])
 def comment_to_post(uid, post_no):
   text = request.form['text']
+  text = re.sub(r"[^a-zA-Z0-9 ]","",text)
+  if not len(text):
+    text = "default"
   q = "INSERT INTO Dep_comments VALUES (DEFAULT,{},{},{},'{}','{}')".format(session['uid'], uid, post_no, text, str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')))
   g.conn.execute(q)
   
@@ -424,6 +443,9 @@ def to_comment(uid_comment, comment_no):
 @app.route('/comment_under_comment/<uid_comment>/<comment_no>', methods=['POST'])
 def comment_to_comment_(uid_comment, comment_no):
   text = request.form['text']
+  text = re.sub(r"[^a-zA-Z0-9 ]","",text)
+  if not len(text):
+    text = "default"
   q = "INSERT INTO Dep_comments VALUES (DEFAULT, {} , NULL, NULL,'{}','{}')".format(session['uid'], text, str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')))
   g.conn.execute(q)
 
@@ -615,8 +637,8 @@ def quit_gorup(group_id):
   g.conn.execute("""DELETE FROM Groups G WHERE G.group_id NOT IN (SELECT Uig.group_id FROM User_in_group Uig
                     GROUP BY Uig.group_id)""")
 
+  delete_redudant_dep_post()
 
-  
   return redirect('/glist_page')
 
 @app.route('/sign_in_page')
@@ -699,6 +721,9 @@ def create_post():
 def create_group_post(group_id):
   text = request.form['text']
   image = request.form['image']
+  text = re.sub(r"[^a-zA-Z0-9 ]","",text)
+  if not len(text):
+    text = "default"
 
   g.conn.execute("""INSERT INTO Dep_posts VALUES 
                     (DEFAULT,%s, %s)""",
@@ -714,15 +739,20 @@ def create_group_post(group_id):
 def create_new_group():
   group_name = request.form['group_name']
   mood = request.form['mood']
+  group_name = re.sub(r"[^a-zA-Z0-9 ]","",group_name)
+  if not len(group_name):
+    group_name = "default name"
+  try:
+    g.conn.execute("""INSERT INTO Groups VALUES 
+                      (DEFAULT, {}, '{}')""".format(mood, group_name))
 
-  g.conn.execute("""INSERT INTO Groups VALUES 
-                    (DEFAULT, {}, '{}')""".format(mood, group_name))
-
-  g.conn.execute("""INSERT INTO User_in_group VALUES
-                    ({},(SELECT last_value FROM Groups_group_id_seq),5)""".format(session['uid']))
-
-  return redirect('/glist_page')
-
+    g.conn.execute("""INSERT INTO User_in_group VALUES
+                      ({},(SELECT last_value FROM Groups_group_id_seq),5)""".format(session['uid']))
+  
+    return redirect('/glist_page')
+  except: 
+    print("fail to create group")
+    return redirect(request.referrer)
 
 #main page to other pages functions 
 @app.route('/see_profile', methods=['GET'])

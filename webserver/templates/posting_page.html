@@ -35,18 +35,27 @@
             <label for="longitude"><b>longitude</b></label>
             <input
                 id="longitude_input"
-                type="text"
+                type="number"
                 placeholder="Enter longitude of current location"
                 name="longitude"
+                max="180"
+                min="-180"
+                step="0.0001"
+                value="-73.9607"
+                
                 required
             />
 
             <label for="latitude"><b>latitude</b></label>
             <input
                 id="latitude_input"
-                type="text"
+                type="number"
                 placeholder="Enter latitude of current location"
                 name="latitude"
+                max="90"
+                min="-90"
+                step="0.0001"
+                value="40.8066"
                 required
             />
 

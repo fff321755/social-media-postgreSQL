@@ -22,10 +22,16 @@
   <h1>Type your Information</h1>
 
 
+
+  <form action="/" method="get">
+    <button type="submit" , class="left-button">Back to Login</button>
+    </form>
+
   <form action="/create_account" method="post">
     <!-- <div class="imgcontainer">
         <img src="img_avatar2.png" alt="Avatar" class="avatar" />
     </div> -->
+
 
     <div class="container">
         <label for="name"><b>Name</b></label>
@@ -33,6 +39,7 @@
             type="text"
             placeholder="Enter Username"
             name="name"
+            maxlength="15"
             required
         />
 
@@ -41,6 +48,7 @@
             type="text"
             placeholder="Enter email address"
             name="email"
+            maxlength="30"
             required
         />
         <label for="password"><b>Password</b></label>
@@ -48,6 +56,7 @@
             type="password"
             placeholder="Enter Password"
             name="password"
+            maxlength="45"
             required
         />
 

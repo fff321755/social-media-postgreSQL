@@ -48,7 +48,7 @@ def Users():
 
     for i in range(0,25):
         uni = name[i].split()[0][0].lower() + name[i].split()[1][0].lower() + str(uni_number[i])
-        df.loc[len(df.index)] = [i, name[i], random.randint(1, 5), uni+"@columbia.edu", '1234' , random.choice(['true', 'false'])]
+        df.loc[len(df.index)] = [i, name[i], random.randint(1, 5), uni+"@columbia.edu", '1234' , 'false']
 
 
     return df
