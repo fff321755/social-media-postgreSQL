@@ -628,7 +628,7 @@ def join_group(group_id):
     g.conn.execute("""INSERT INTO User_in_group VALUES 
                       (%s,%s,1)""", session['uid'], group_id)
   except:
-    redirect('/')
+    redirect('/main')
 
   return redirect('/group_page/'+group_id)
 
