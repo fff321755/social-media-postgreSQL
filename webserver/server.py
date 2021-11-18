@@ -770,6 +770,17 @@ def log_out():
   session.clear()
   return redirect('/')
 
+@app.route('/delete_post/<uid>/<post_no>', methods=['POST'])
+def delete_post(uid, post_no):
+  if int(uid) == session['uid']:
+    print("delete")
+    g.conn.execute("""DELETE FROM Dep_posts WHERE uid = {} AND post_no= {}""".format(uid, post_no))
+  else:
+    print("fail")
+    
+    
+  return redirect(request.referrer)
+
 if __name__ == "__main__":
   import click
 
