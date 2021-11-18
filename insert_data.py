@@ -108,7 +108,7 @@ def Group_posts_Personal_mood(df_dep_post, df_user_in_group):
         else:
             random.shuffle(user_group)
             group_id = user_group[0][1]
-            df_g.loc[len(df_g.index)] = [uid, group_id, post_no, "sample text", "https://www.sample.im/URL"]
+            df_g.loc[len(df_g.index)] = [uid, group_id, post_no, "sample text", "https://i.imgur.com/HeGEEbu.jpeg"]
 
     return df_g, df_p
 

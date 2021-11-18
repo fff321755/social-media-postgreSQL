@@ -5,6 +5,11 @@
         <meta charset="UTF-8" />
         <meta name="description" content="This is where to show your mood." />
         <style>
+            body{ 
+                font-size: 15pt;
+                font-family: arial;
+                background-color: aliceblue;
+            }
             img {
                 width: 200px;
                 border-radius: 100px;
@@ -110,7 +115,7 @@
                 <button type="submit", class="left-button">New Post</button>
             </form>
             <form action="/see_posts" method='get'>
-                <button type="submit", class="left-button">See Posts</button>
+                <button type="submit", class="left-button">See Anonymous Random Posts</button>
             </form>
         
         {% for uid, mood, post_no, time, name, mood_counts in posts %}
