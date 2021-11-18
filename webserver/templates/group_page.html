@@ -21,6 +21,12 @@
     {% endfor %}
   </div>
   <br />
+
+  <form action="/quit_group/{{gid}}" method ='get'>
+    <button>Quit Group</button>
+  </form>
+  
+  <br />
   <form action="/group_posting_page/{{gid}}" method='post'>
     <button>New Post</button>
   </form>
@@ -35,10 +41,10 @@
      {% for r_mood, count in mood_counts %}
        <p>responses_mood : {{r_mood}}, {{count}}</p>
      {% endfor %}
-   <form action="/post2/{{uid}}/{{post_no}}" method='get'>
+    <form action="/post2/{{uid}}/{{post_no}}" method='get'>
        <button >details & comment</button>
-   </form>
-   <form action="/response_to_post/{{uid}}/{{post_no}}" method='post'>
+    </form>
+    <form action="/response_to_post/{{uid}}/{{post_no}}" method='post'>
     <select name="mood_selected">
         <option>1</option>
         <option>2</option>

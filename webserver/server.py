@@ -315,6 +315,7 @@ def to_post(uid, post_no):
   return render_template("post.html", **context)
 
   #comments to group_post
+
 @app.route('/post2/<uid>/<post_no>', methods=['GET'])
 def post2(uid, post_no):
 
@@ -605,6 +606,13 @@ def join_group(group_id):
                     (%s,%s,1)""", session['uid'], group_id)
 
   return redirect('/group_page/'+group_id)
+
+@app.route('/quit_group/<group_id>', methods=['GET'])
+def quit_gorup(group_id):
+
+  g.conn.execute("""DELETE FROM User_in_group WHERE group_id = '{}' AND uid = '{}'""".format(group_id, session['uid']))
+  
+  return redirect('/glist_page')
 
 @app.route('/sign_in_page')
 def sign_ing_page():
