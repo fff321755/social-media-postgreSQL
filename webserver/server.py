@@ -766,6 +766,7 @@ def home():
 @app.route('/logout', methods=['GET'])
 def log_out():
   #session['uid'] = "-1"
+  g.conn.execute("""UPDATE Users SET is_active = {} WHERE uid = '{}' """.format(False, session['uid']))
   session.clear()
   return redirect('/')
 
