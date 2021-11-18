@@ -63,9 +63,12 @@
             </select>
                 <button >express</button>
          </form>
-        <form action="/to_user_profile/{{uid_comment}}" method='post'>
+        <form action="/to_user_profile/{{uid_comment}}" method='get'>
             <button >profile</button>
         </form>
+        <form action="/delete_comment/{{uid_comment}}/{{comment_no}}" method='post'>
+            <button >delete</button>
+         </form>
     </div>
     {% endfor %}
 

@@ -770,6 +770,27 @@ def log_out():
   session.clear()
   return redirect('/')
 
+@app.route('/delete_post/<uid>/<post_no>', methods=['POST'])
+def delete_post(uid, post_no):
+  if int(uid) == session['uid']:
+    
+    try:
+      g.conn.execute("""DELETE FROM Dep_posts WHERE uid = {} AND post_no= {}""".format(uid, post_no))
+    except:
+      print("it's comment has subcomments")
+
+  return redirect(request.referrer)
+
+@app.route('/delete_comment/<uid_comment>/<comment_no>', methods=['POST'])
+def delete_comment(uid_comment, comment_no):
+  if int(uid_comment) == session['uid']:
+    try:
+      g.conn.execute("""DELETE FROM Dep_comments WHERE uid_comment = {} AND comment_no= {}""".format(uid_comment, comment_no))
+    except:
+      print("the comment has subcomments")
+
+  return redirect(request.referrer)
+
 if __name__ == "__main__":
   import click
 
