@@ -10,7 +10,7 @@
     http://104.196.113.217:8111/
 
 ## Description
-Please Use Home Button to get back to mainpage, don't use Previous/Next page in browser
+Please Use Home Button to get back to mainpage, don't use Previous/Next page in browser, we don't found any bug on that but don't recommend.
 - Implemented:
   1. Post personal mood
   2. Post group post
