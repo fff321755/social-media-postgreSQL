@@ -10,6 +10,7 @@
     http://104.196.113.217:8111/
 
 ## Description
+Please Use Home Button to get back to mainpage, don't use Previous/Next page in browser
 - Implemented:
   1. Post personal mood
   2. Post group post
@@ -34,6 +35,7 @@
 
 - Not implemented:
   1. Order By Location: Since we use http not https for our web-application, we have no access to the location information of the user. So the personal_mood posts are ordered by time, not distance from the user. And the autofill location when posting won’t work for most browsers for the same issue.
+  2. We implemented the level of the user within a group as if the user created the group, the level is 5 and 1 when just joined the group.  We intended to give the user some authority to modify the group information or ability to post the group depending on the level( the level is dependent on the time passed since the user joined the group) at the part 1 of the project, but that is not implemented in our code. 
 
 ## Two interesting pages.
 1. post.html and comments.html

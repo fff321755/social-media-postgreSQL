@@ -624,8 +624,11 @@ def post_page():
 
 @app.route('/join_group/<group_id>', methods=['GET'])
 def join_group(group_id):
-  g.conn.execute("""INSERT INTO User_in_group VALUES 
-                    (%s,%s,1)""", session['uid'], group_id)
+  try:
+    g.conn.execute("""INSERT INTO User_in_group VALUES 
+                      (%s,%s,1)""", session['uid'], group_id)
+  except:
+    redirect('/')
 
   return redirect('/group_page/'+group_id)
 
