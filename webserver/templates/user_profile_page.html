@@ -4,10 +4,23 @@
       font-size: 15pt;
       font-family: arial;
     }
+    .left-button {
+            background-color: #04aa6d;
+            color: white;
+            padding: 10px 10px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 10%;
+        }
   </style>
 
 
 <body>
+  <form action="/home" method='get'>
+    <button type="submit", class="left-button">Go to Home</button>
+  </form>
+
   <h1>Profile</h1>
 
   <div>
@@ -46,7 +59,7 @@
         <button >express</button>
     </form>
 
-    <form action="/to_user_profile/{{uid}}" method='post'>
+    <form action="/to_user_profile/{{uid}}" method='get'>
         <button >profile</button>
     </form>
     <br>

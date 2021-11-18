@@ -83,7 +83,6 @@
                 <p>I am <em>{{mood}}</em></p>
                 <p>Online : {{active}}</p>
             </div>
-
             <form action="/logout" method="get">
                 <button type="submit" , class="left-button">Logout</button>
             </form>
@@ -137,7 +136,7 @@
                 <button >express</button>
             </form>
 
-            <form action="/to_user_profile/{{uid}}" method='post'>
+            <form action="/to_user_profile/{{uid}}" method='get'>
                 <button >profile</button>
             </form>
             <br>

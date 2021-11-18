@@ -74,8 +74,8 @@ def before_request():
     g.conn = None
 
   #Check Login
-  # if session['uid']:
-  #   render_template("login.html")
+  if not session.get('uid') and request.endpoint != 'login' and request.endpoint != 'index':
+    return redirect("/")
 
 @app.teardown_request
 def teardown_request(exception):
@@ -296,6 +296,8 @@ def to_post(uid, post_no):
   cursor.close()
   # context = dict(uid=uid, post_no=post_no, comments=Comments, pp_uid=Parent_Post[0], pp_mood=Parent_Post[1], pp_post_no=Parent_Post[2], pp_time=Parent_Post[3], pp_name=Parent_Post[4])
 
+  Comments = Comments[:10]
+
   Comments_with_count = []
   for comment in Comments:
     q = "select mood, COUNT(*) from Responses_to_comment r where r.uid_comment={} AND r.comment_no={} group by r.mood".format(comment[0],comment[1])
@@ -319,7 +321,9 @@ def comment_to_post(uid, post_no):
   q = "INSERT INTO Dep_comments VALUES (DEFAULT,{},{},{},'{}','{}')".format(session['uid'], uid, post_no, text, str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')))
   g.conn.execute(q)
   
-  return redirect('/post/{}/{}'.format(uid,post_no))
+  # return redirect('/post/{}/{}'.format(uid,post_no))
+  return redirect(request.referrer)
+  
 
 # reponse to post
 @app.route('/response_to_post/<uid>/<post_no>', methods=['POST'])
@@ -362,6 +366,8 @@ def to_comment(uid_comment, comment_no):
     Comments.append((result["uid_comment"],result["comment_no"], result["time"], result["text"], result["name"]))
   cursor.close()
 
+  Comments = Comments[:10]
+
   
   Comments_with_count = []
   for comment in Comments:
@@ -392,7 +398,8 @@ def comment_to_comment_(uid_comment, comment_no):
   q = "INSERT INTO comments_to_comments VALUES ({}, {}, {}, {})".format(uid_comment, session['uid'], comment_no, comments_no2)
   g.conn.execute(q)
   
-  return redirect('/comment/{}/{}'.format(uid_comment,comment_no))
+  # return redirect('/comment/{}/{}'.format(uid_comment,comment_no))
+  return redirect(request.referrer)
 
 # reponse to comment
 @app.route('/response_to_comment/<uid_comment>/<comment_no>', methods=['POST'])
@@ -465,6 +472,7 @@ def glist_page():
 def create_group():
   return render_template("creating_group_page.html")
 
+
 #from group list page
 @app.route('/group_page/<group_id>', methods=['GET'])
 def group_page(group_id):
@@ -491,6 +499,7 @@ def group_page(group_id):
   context = dict(group_info = Group_info, group_post = Group_post, gid = group_id)
 
   return render_template('group_page.html', **context)
+
 
 @app.route('/group_posting_page/<group_id>', methods=['POST'])
 def group_posting_page(group_id):
@@ -553,26 +562,8 @@ def join_group(group_id):
 def sign_ing_page():
   return render_template('sign_in_page.html')
 
-@app.route('/to_user_profile/<user_id>', methods=['POST'])
+@app.route('/to_user_profile/<user_id>', methods=['get'])
 def to_user_profile(user_id):
-    
-  # User_profile = []
-  # cursor = g.conn.execute("""SELECT * FROM Users WHERE uid = %s""", user_id)
-  
-  # for result in cursor:
-  #   User_profile.append((result["name"], result["email"], result["present_mood"],result['uid']))
-  # cursor.close()
-  # Posts = []
-  # cursor =g.conn.execute("""SELECT D.time, M.longitude, M.latitude, M.mood 
-  #                         FROM Dep_posts D, Personal_mood M WHERE D.uid = %s AND 
-  #                         D.uid=M.uid AND D.post_no=M.post_no""", user_id)
-  # for result in cursor:
-  #   Posts.append((result["time"],result["longitude"],result["latitude"],result["mood"]))
-  # cursor.close()
-
-  # context = dict(profile=User_profile, posts=Posts)
-
-  # return render_template('user_profile_page.html', **context)
 
   User_profile = []
   cursor = g.conn.execute("""SELECT * FROM Users WHERE uid = %s""", user_id)
@@ -601,7 +592,7 @@ def to_user_profile(user_id):
   context = dict(profile=User_profile, posts=posts_with_count)
   return render_template('user_profile_page.html', **context)
 
-@app.route('/to_user_profile2/<user_id>', methods=['POST'])
+@app.route('/to_user_profile2/<user_id>', methods=['get'])
 def to_user_profile2(user_id):
     
   User_profile = []
@@ -621,13 +612,6 @@ def to_user_profile2(user_id):
   context = dict(profile=User_profile, posts=Posts)
 
   return render_template('user_profile_page2.html', **context) 
-
-# Example of adding new data to the database
-@app.route('/add', methods=['POST'])
-def add():
-  name = request.form['name']
-  g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
-  return redirect('/')
 
 
 @app.route('/create_personal_post', methods=['POST'])
@@ -714,8 +698,6 @@ def follow(uid):
                     ({},{})""".format(session['uid'], uid))
 
   return redirect('/follow_page')
-# @app.route('/main')
-# def main():
   
 @app.route('/home', methods=['GET'])
 def home():

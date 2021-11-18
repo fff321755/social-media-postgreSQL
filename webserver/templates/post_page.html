@@ -4,6 +4,15 @@
       font-size: 15pt;
       font-family: arial;
     }
+    .left-button {
+            background-color: #04aa6d;
+            color: white;
+            padding: 10px 10px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 10%;
+    }
   </style>
 
 
@@ -20,7 +29,7 @@
     <div>Posted by : {{uid}}</div>
     <div>sted when : {{time}}</div>
     <div>Mood : {{mood}}</div>
-    <form action=/to_user_profile2/{{uid}} method='post'>
+    <form action=/to_user_profile2/{{uid}} method='get'>
       <button type='submit'>See Profile</button>
     </form>
     {% endfor %}
@@ -34,7 +43,7 @@
     <div>Posted when {{time}}</div>
     <div>{{url}}</div>
     <div>{{text}}</div>
-    <form action=/join_group/{{group_id}} method='post'>
+    <form action=/join_group/{{group_id}} method='get'>
       <button type='submit'>Join Group</button>
     </form>
     {% endfor %}
