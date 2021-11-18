@@ -315,40 +315,40 @@ def to_post(uid, post_no):
   return render_template("post.html", **context)
 
   #comments to group_post
-  @app.route('/post2/<uid>/<post_no>', methods=['GET'])
-  def post2(uid, post_no):
+@app.route('/post2/<uid>/<post_no>', methods=['GET'])
+def post2(uid, post_no):
 
     
-    cursor = g.conn.execute("SELECT gp.uid, gp.post_no, gp.text, gp.image_url, dp.time, u.name FROM Group_posts gp NATURAL JOIN Dep_posts dp NATURAL JOIN Users u WHERE pm.uid = {} AND pm.post_no = {}".format(uid, post_no))
-    for result in cursor:
-      Parent_Post = (result["uid"],result['post_no'], result['text'],result['image_url'], result["time"], result["name"])
-    cursor.close()
+  cursor = g.conn.execute("SELECT gp.uid, gp.post_no, gp.text, gp.image_url, dp.time, u.name FROM Group_posts gp NATURAL JOIN Dep_posts dp NATURAL JOIN Users u WHERE gp.uid = {} AND gp.post_no = {}".format(uid, post_no))
+  for result in cursor:
+    Parent_Post = (result["uid"],result['post_no'], result['text'],result['image_url'], result["time"], result["name"])
+  cursor.close()
 
 
-    Comments = []
-    cursor = g.conn.execute("SELECT * FROM Dep_comments dc JOIN Users u ON dc.uid_comment = u.uid WHERE uid_post = %s AND post_no = %s order by dc.time desc", (uid, post_no))
-    for result in cursor:
-      Comments.append((result["uid_comment"],result["comment_no"], result['time'], result["text"], result["name"]))
-    cursor.close()
+  Comments = []
+  cursor = g.conn.execute("SELECT * FROM Dep_comments dc JOIN Users u ON dc.uid_comment = u.uid WHERE uid_post = %s AND post_no = %s order by dc.time desc", (uid, post_no))
+  for result in cursor:
+    Comments.append((result["uid_comment"],result["comment_no"], result['time'], result["text"], result["name"]))
+  cursor.close()
   # context = dict(uid=uid, post_no=post_no, comments=Comments, pp_uid=Parent_Post[0], pp_mood=Parent_Post[1], pp_post_no=Parent_Post[2], pp_time=Parent_Post[3], pp_name=Parent_Post[4])
 
-    Comments = Comments[:10]
+  Comments = Comments[:10]
 
-    Comments_with_count = []
-    for comment in Comments:
-      q = "select mood, COUNT(*) from Responses_to_comment r where r.uid_comment={} AND r.comment_no={} group by r.mood".format(comment[0],comment[1])
-      cursor = g.conn.execute(q)
-      mood_count=[]
-      for result in cursor:
-        mood_count.append((result['mood'], result['count']))
-      Comments_with_count.append((*comment, mood_count))
-      cursor.close()
+  Comments_with_count = []
+  for comment in Comments:
+    q = "select mood, COUNT(*) from Responses_to_comment r where r.uid_comment={} AND r.comment_no={} group by r.mood".format(comment[0],comment[1])
+    cursor = g.conn.execute(q)
+    mood_count=[]
+    for result in cursor:
+      mood_count.append((result['mood'], result['count']))
+    Comments_with_count.append((*comment, mood_count))
+    cursor.close()
 
-    context = dict(uid=uid, post_no=post_no, comments=Comments_with_count, pp_uid=Parent_Post[0], pp_post_no=Parent_Post[1], pp_text=Parent_Post[2], pp_image_url = Parent_Post[3], pp_time=Parent_Post[4], pp_name=Parent_Post[5])
+  context = dict(uid=uid, post_no=post_no, comments=Comments_with_count, pp_uid=Parent_Post[0], pp_post_no=Parent_Post[1], pp_text=Parent_Post[2], pp_image_url = Parent_Post[3], pp_time=Parent_Post[4], pp_name=Parent_Post[5])
 
 
 
-    return render_template("post2.html", **context)
+  return render_template("post2.html", **context)
 
 # create comment to post
 @app.route('/comment_under_posts/<uid>/<post_no>', methods=['POST'])
