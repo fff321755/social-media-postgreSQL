@@ -525,7 +525,7 @@ def group_page(group_id):
   cursor = g.conn.execute("""SELECT D.time, G.text, G.image_url, D.uid, D.post_no
                               FROM Dep_posts D, Group_posts G
                               WHERE D.uid = G.uid AND D.post_no=G.post_no AND
-                              G.group_id = %s""", group_id)
+                              G.group_id = %s ORDER BY D.time DESC""", group_id)
                              ## possibly ordered by time?
 
   for result in cursor:
@@ -579,7 +579,7 @@ def post_page():
   cursor = g.conn.execute("""SELECT D.uid, P.mood, D.post_no, D.time FROM Personal_mood P, Dep_posts D
                              WHERE P.uid = D.uid AND P.post_no = D.post_no AND 
                              D.uid NOT IN (SELECT DISTINCT uid_followed FROM Follow
-                             WHERE uid_following = %s OR uid_followed = %s)""", (session['uid'],session['uid']))
+                             WHERE uid_following = %s OR uid_followed = %s) ORDER BY D.time DESC""", (session['uid'],session['uid']))
   for result in cursor:
     Personal_post.append((result['uid'],result['mood'],result['post_no'],result['time']))
   cursor.close()
@@ -589,7 +589,7 @@ def post_page():
                               FROM Dep_posts D, Group_posts G
                               WHERE D.uid = G.uid AND D.post_no=G.post_no AND
                               G.group_id NOT IN (SELECT group_id FROM User_in_group
-                              WHERE uid = %s) """, session['uid'])
+                              WHERE uid = %s) ORDER BY D.time DESC""", session['uid'])
                              ## possibly ordered by time?
   for result in cursor:
     Group_post.append((result['time'],result['text'],result['image_url'],result['group_id']))
@@ -688,14 +688,12 @@ def create_group_post(group_id):
   image = request.form['image']
 
   g.conn.execute("""INSERT INTO Dep_posts VALUES 
-                    ((SELECT MAX(post_no) FROM Dep_posts WHERE uid=%s)+1,%s, %s)""",
-                    (session['uid'],str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')),
-                    session['uid']))
-
+                    (DEFAULT,%s, %s)""",
+                    (str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')),session['uid']))
 
   g.conn.execute("""INSERT INTO Group_posts VALUES
-                    (%s,%s,(SELECT MAX(post_no) FROM Dep_posts WHERE uid=%s),%s,%s)""",
-                    (session['uid'],group_id,session['uid'],text,image))
+                    (%s,%s,(SELECT last_value FROM Dep_posts_post_no_seq),%s,%s)""",
+                    (session['uid'],group_id,text,image))
 
   return redirect('/group_page/'+group_id)
 
