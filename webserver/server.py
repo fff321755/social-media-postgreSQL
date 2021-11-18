@@ -724,15 +724,23 @@ def create_group_post(group_id):
   text = re.sub(r"[^a-zA-Z0-9 ]","",text)
   if not len(text):
     text = "default"
+  
+  if len(image)<8 or image[:8] != "https://":
+    image = "https://i.imgur.com/HeGEEbu.jpeg"
+    print("change image to sample image")
 
-  g.conn.execute("""INSERT INTO Dep_posts VALUES 
-                    (DEFAULT,%s, %s)""",
-                    (str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')),session['uid']))
 
-  g.conn.execute("""INSERT INTO Group_posts VALUES
-                    (%s,%s,(SELECT last_value FROM Dep_posts_post_no_seq),%s,%s)""",
-                    (session['uid'],group_id,text,image))
+  try:
+    g.conn.execute("""INSERT INTO Dep_posts VALUES 
+                      (DEFAULT,%s, %s)""",
+                      (str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')),session['uid']))
 
+    g.conn.execute("""INSERT INTO Group_posts VALUES
+                      (%s,%s,(SELECT last_value FROM Dep_posts_post_no_seq),%s,%s)""",
+                      (session['uid'],group_id,text,image))
+
+  except:
+    print("fail to post in group")
   return redirect('/group_page/'+group_id)
 
 @app.route('/create_new_group', methods=['POST'])
