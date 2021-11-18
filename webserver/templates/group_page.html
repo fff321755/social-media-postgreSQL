@@ -35,7 +35,7 @@
  
     {% for time, text, url, uid, post_no, mood_counts in group_post %}
     </div class = 'float'>
-    <p>{{url}}</p>
+    <img src={{url}} alt=“image_error”>
     <p>{{text}}</p>
     <p>{{time}}</p>
      {% for r_mood, count in mood_counts %}

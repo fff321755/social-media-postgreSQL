@@ -41,7 +41,7 @@
     {% for time, text, url, group_id in group_post %}
     <br />
     <div>Posted when {{time}}</div>
-    <div>{{url}}</div>
+    <img src={{url}} alt=“image_error”>
     <div>{{text}}</div>
     <form action=/join_group/{{group_id}} method='get'>
       <button type='submit'>Join Group</button>
