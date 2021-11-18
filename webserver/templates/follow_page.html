@@ -18,16 +18,17 @@
 
 <body>
 
-  <h1>You are following...</h1>
 
   <form action="/home" method='get'>
     <button type="submit", class="left-button">Go to Home</button>
   </form>
+
+  <h1>You are following...</h1>
   
   <div>
     {% for user, uid, active in following %}
     <div>{{user}} : {{active}}</div>
-    <form action=/to_user_profile/{{uid}} method='post'>
+    <form action=/to_user_profile/{{uid}} method='get'>
       <button type='submit'>See Profile</button>
     </form>
 

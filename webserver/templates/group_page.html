@@ -26,14 +26,37 @@
   </form>
   
   <br />
-  <div>
-    {% for time, text, url in group_post %}
-    <br />
-    <div>Posted when {{time}}</div>
-    <div>{{url}}</div>
-    <div>{{text}}</div>
-    <form action="/" method='get'>
-      <button >comment</button>
-    </form>
-    {% endfor %}
+ 
+    {% for time, text, url, uid, post_no, mood_counts in group_post %}
+    </div class = 'float'>
+    <p>{{url}}</p>
+    <p>{{text}}</p>
+    <p>{{time}}</p>
+     {% for r_mood, count in mood_counts %}
+       <p>responses_mood : {{r_mood}}, {{count}}</p>
+     {% endfor %}
+   <form action="/post2/{{uid}}/{{post_no}}" method='get'>
+       <button >details & comment</button>
+   </form>
+   <form action="/response_to_post/{{uid}}/{{post_no}}" method='post'>
+    <select name="mood_selected">
+        <option>1</option>
+        <option>2</option>
+        <option>3</option>
+        <option>4</option>
+        <option>5</option>
+        <option>6</option>
+   </select>
+       <button >express</button>
+   </form>
+
+   
+   <br>
+    <br>
+    <br>
   </div>
+{% endfor %}
+
+
+
+

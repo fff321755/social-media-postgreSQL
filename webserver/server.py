@@ -282,7 +282,7 @@ def main():
 @app.route('/post/<uid>/<post_no>', methods=['GET'])
 def to_post(uid, post_no):
 
-
+  
   cursor = g.conn.execute("SELECT pm.uid, pm.mood, pm.post_no, dp.time, u.name FROM Personal_mood pm NATURAL JOIN Dep_posts dp NATURAL JOIN Users u WHERE pm.uid = {} AND pm.post_no = {}".format(uid, post_no))
   for result in cursor:
     Parent_Post = (result["uid"],result["mood"], result['post_no'], result["time"], result["name"])
@@ -313,6 +313,42 @@ def to_post(uid, post_no):
 
 
   return render_template("post.html", **context)
+
+  #comments to group_post
+  @app.route('/post2/<uid>/<post_no>', methods=['GET'])
+  def post2(uid, post_no):
+
+    
+    cursor = g.conn.execute("SELECT gp.uid, gp.post_no, gp.text, gp.image_url, dp.time, u.name FROM Group_posts gp NATURAL JOIN Dep_posts dp NATURAL JOIN Users u WHERE pm.uid = {} AND pm.post_no = {}".format(uid, post_no))
+    for result in cursor:
+      Parent_Post = (result["uid"],result['post_no'], result['text'],result['image_url'], result["time"], result["name"])
+    cursor.close()
+
+
+    Comments = []
+    cursor = g.conn.execute("SELECT * FROM Dep_comments dc JOIN Users u ON dc.uid_comment = u.uid WHERE uid_post = %s AND post_no = %s order by dc.time desc", (uid, post_no))
+    for result in cursor:
+      Comments.append((result["uid_comment"],result["comment_no"], result['time'], result["text"], result["name"]))
+    cursor.close()
+  # context = dict(uid=uid, post_no=post_no, comments=Comments, pp_uid=Parent_Post[0], pp_mood=Parent_Post[1], pp_post_no=Parent_Post[2], pp_time=Parent_Post[3], pp_name=Parent_Post[4])
+
+    Comments = Comments[:10]
+
+    Comments_with_count = []
+    for comment in Comments:
+      q = "select mood, COUNT(*) from Responses_to_comment r where r.uid_comment={} AND r.comment_no={} group by r.mood".format(comment[0],comment[1])
+      cursor = g.conn.execute(q)
+      mood_count=[]
+      for result in cursor:
+        mood_count.append((result['mood'], result['count']))
+      Comments_with_count.append((*comment, mood_count))
+      cursor.close()
+
+    context = dict(uid=uid, post_no=post_no, comments=Comments_with_count, pp_uid=Parent_Post[0], pp_post_no=Parent_Post[1], pp_text=Parent_Post[2], pp_image_url = Parent_Post[3], pp_time=Parent_Post[4], pp_name=Parent_Post[5])
+
+
+
+    return render_template("post2.html", **context)
 
 # create comment to post
 @app.route('/comment_under_posts/<uid>/<post_no>', methods=['POST'])
@@ -486,17 +522,29 @@ def group_page(group_id):
   cursor.close()
 
   Group_post = []
-  cursor = g.conn.execute("""SELECT D.time, G.text, G.image_url
+  cursor = g.conn.execute("""SELECT D.time, G.text, G.image_url, D.uid, D.post_no
                               FROM Dep_posts D, Group_posts G
                               WHERE D.uid = G.uid AND D.post_no=G.post_no AND
                               G.group_id = %s""", group_id)
                              ## possibly ordered by time?
 
   for result in cursor:
-    Group_post.append((result['time'],result['text'],result['image_url']))
+    Group_post.append((result['time'],result['text'],result['image_url'],result['uid'],result['post_no']))
   cursor.close()
 
-  context = dict(group_info = Group_info, group_post = Group_post, gid = group_id)
+  Group_post = Group_post[:10]
+  group_post_with_count = []
+  for post in Group_post:
+    cursor = g.conn.execute("""SELECT mood, COUNT(*) FROM responses_to_post
+                               WHERE uid_post={} AND post_no = {} GROUP BY mood
+                              """.format(post[3],post[4]))
+    mood_count = []
+    for result in cursor:
+      mood_count.append((result['mood'],result['count']))
+    group_post_with_count.append((*post, mood_count))
+    cursor.close()
+
+  context = dict(group_info = Group_info, group_post = group_post_with_count, gid = group_id)
 
   return render_template('group_page.html', **context)
 
@@ -551,7 +599,7 @@ def post_page():
 
   return render_template('post_page.html', **context)
 
-@app.route('/join_group/<group_id>', methods=['POST'])
+@app.route('/join_group/<group_id>', methods=['GET'])
 def join_group(group_id):
   g.conn.execute("""INSERT INTO User_in_group VALUES 
                     (%s,%s,1)""", session['uid'], group_id)
@@ -643,6 +691,7 @@ def create_group_post(group_id):
                     ((SELECT MAX(post_no) FROM Dep_posts WHERE uid=%s)+1,%s, %s)""",
                     (session['uid'],str(datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')),
                     session['uid']))
+
 
   g.conn.execute("""INSERT INTO Group_posts VALUES
                     (%s,%s,(SELECT MAX(post_no) FROM Dep_posts WHERE uid=%s),%s,%s)""",
