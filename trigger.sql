@@ -5,7 +5,7 @@ ADD CONSTRAINT user_in_group_group_id_fkey
    FOREIGN KEY (group_id) REFERENCES Groups ON DELETE CASCADE ON UPDATE CASCADE
    DEFERRABLE INITIALLY DEFERRED;
 
-CREATE FUNCTION empty_group() RETURNS TRIGGER AS $empty_group$
+CREATE FUNCTION empty_group() RETURNS TRIGGER AS $body$
     BEGIN
         IF (NEW.group_id NOT IN (SELECT group_id FROM User_in_group)) THEN
             DELETE FROM Groups G 
@@ -13,7 +13,7 @@ CREATE FUNCTION empty_group() RETURNS TRIGGER AS $empty_group$
         END IF;
         RETURN NULL;
     END;
-$empty_group$ LANGUAGE plpgsql;
+$body$ LANGUAGE plpgsql;
 
 CREATE CONSTRAINT TRIGGER empty_group
 AFTER INSERT ON Groups
@@ -22,7 +22,7 @@ DEFERRABLE INITIALLY DEFERRED
 
 
 -- trigger 2
-CREATE FUNCTION delete_empty_group() RETURNS trigger AS $body$
+CREATE FUNCTION delete_empty_group() RETURNS TRIGGER AS $body$
 
     BEGIN
         IF (SELECT COUNT(*) FROM User_in_group ug WHERE group_id = old.group_id)= 0 THEN
