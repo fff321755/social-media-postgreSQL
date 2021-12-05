@@ -1,0 +1,5 @@
+ALTER TABLE Personal_mood
+ADD COLUMN text text;
+
+UPDATE Personal_mood
+SET text = 'Sample Texts\n XD \n Add to your schema at least one text attribute, over which you can do full-text search, as described here. (You can focus on Sections 12.1 and 12.2.) You can either add the new text attribute to one of your existing tables using ALTER TABLE or you can create a new table altogether that contains one text attribute (and other attributes, of course). In either case, this text attribute should hold document-style data (i.e., a paragraph or more of natural language text, such as in a news article); the text attribute should not hold regular strings. For example, it is OK for the new attribute to correspond to, say, the text of a product review by a user; it is not OK for the new attribute to correspond to a product name or a userid, which would be more naturally modeled with a regular VARCHAR attribute. Text search functions and operators in PostgreSQL are documented here. Note: You should use single quotes for inserting text values.';
